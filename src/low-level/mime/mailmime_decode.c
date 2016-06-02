@@ -916,79 +916,74 @@ int mailmime_encoded_phrase_parse2(const char * message,
                                    const char * tocode,
                                    char ** result)
 {
-  int r;
-  int ret = 0;
   long res;
-  char * str;
-  char * wordutf8 = NULL;
-  
-  long len;
-  int has_charset = 0;
   char * charset = NULL;
-  
-  int has_encoding = 0;
   char * encoding = NULL;
-  char * encoding_start;
-  char * text;
-  
-  str = (char *)message;
-  while (*str != 0) {
-    if (*str == '\'') {
-      has_charset = 1;
+  char * text = NULL;
+
+  size_t current = 0;
+  size_t firstQuotes,secondQuotes;
+  if (message == NULL) {
+    return 0;
+  }
+  while(message[current] != '\0'){
+    if(message[current] == '\'') {
+        break;
+    }
+    current++;
+  }
+  if (message[current] == '\0' || message[current+1] == '\0') {
+      goto free;
+  }
+  firstQuotes = current;
+  current++;
+  while(message[current] != '\0'){
+    if(message[current] == '\'') {
       break;
     }
-    str++;
+    current++;
   }
-  if (has_charset) {
-    len = str - message;
-    charset = (char*)malloc(len + 1);
-    strncpy(charset, message, len);
-    
-    str++;
-    encoding_start = str;
-    while (*str != 0) {
-      if (*str == '\'') {
-        break;
-      }
-      str++;
-    }
-    if (str > encoding_start) {
-      len = str - encoding_start;
-      charset = (char*)malloc(len + 1);
-      strncpy(encoding, encoding_start, len);
-      has_encoding = 1;
-    } else {
-      has_encoding = 0;
-    }
+  if (message[current] == '\0' || message[current+1] == '\0') {
+    goto free;
   }
+  secondQuotes = current;
+  current++;
   
-  str++;
-  len = strlen(str);
-  text = (char*)malloc(len + 1);
-  memset(text, 0, len + 1);
+  charset = (char*)malloc(firstQuotes + 1);
+  strncpy(charset, message, firstQuotes);
+  charset[firstQuotes] = '\0';
   
-  res = urldecode(text, str, 0);
-  if (res > 0) {
-    
-    r = charconv(tocode, charset, text, strlen(text), &wordutf8);
+  encoding = (char*)malloc(secondQuotes - firstQuotes);
+  strncpy(encoding, message+firstQuotes+1, secondQuotes - firstQuotes -1);
+  encoding[secondQuotes-firstQuotes] = '\0';
+  
+  size_t length = strlen(message);
+  text = (char*)malloc(length - secondQuotes);
+  memset(text, 0, length - secondQuotes);
+  res = urldecode(text, message+current, 0);
+  if (res > 0 && strcmp(tocode,charset) != 0) {
+    char * wordutf8 = NULL;
+    charconv(tocode, charset, text, strlen(text), &wordutf8);
     if (wordutf8 != NULL) {
-      str = strdup(wordutf8);
-      * result = str;
-      free(wordutf8);
-      ret = 1;
+      * result = wordutf8;
+    } else {
+      * result = text;
+      text = NULL;
     }
+  } else {
+    * result = text;
+    text = NULL;
   }
   
-  if (ret == 0) {
-    str = strdup(message);
-    * result = str;
-  }
-  
+  free:
   if (charset != NULL) {
     free(charset);
   }
   if (encoding != NULL) {
     free(encoding);
+  }
+  if (text != NULL) {
+    free(text);
   }
   
   return 0;
