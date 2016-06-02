@@ -49,6 +49,11 @@ int mailmime_encoded_phrase_parse(const char * default_fromcode,
     size_t * indx, const char * tocode,
     char ** result);
 
+LIBETPAN_EXPORT
+int mailmime_encoded_phrase_parse2(const char * message,
+                                     const char * tocode,
+                                     char ** result);
+  
 int
 mailmime_encoded_word_parse(const char * message, size_t length,
                             size_t * indx,

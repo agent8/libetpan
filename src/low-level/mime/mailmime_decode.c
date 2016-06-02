@@ -71,6 +71,8 @@
 static int mailmime_charset_parse(const char * message, size_t length,
 				  size_t * indx, char ** charset);
 
+static long urldecode(char* dst, const char* src, int normalize);
+
 enum {
   MAILMIME_ENCODING_B,
   MAILMIME_ENCODING_Q
@@ -904,4 +906,169 @@ static int mailmime_etoken_parse(const char * message, size_t length,
   return mailimf_custom_string_parse(message, length,
 				     indx, result,
 				     is_etoken_char);
+}
+
+
+
+
+LIBETPAN_EXPORT
+int mailmime_encoded_phrase_parse2(const char * message,
+                                   const char * tocode,
+                                   char ** result)
+{
+  int r;
+  int ret = 0;
+  long res;
+  char * str;
+  char * wordutf8 = NULL;
+  
+  long len;
+  int has_charset = 0;
+  char * charset = NULL;
+  
+  int has_encoding = 0;
+  char * encoding = NULL;
+  char * encoding_start;
+  char * text;
+  
+  str = (char *)message;
+  while (*str != 0) {
+    if (*str == '\'') {
+      has_charset = 1;
+      break;
+    }
+    str++;
+  }
+  if (has_charset) {
+    len = str - message;
+    charset = (char*)malloc(len + 1);
+    strncpy(charset, message, len);
+    
+    str++;
+    encoding_start = str;
+    while (*str != 0) {
+      if (*str == '\'') {
+        break;
+      }
+      str++;
+    }
+    if (str > encoding_start) {
+      len = str - encoding_start;
+      charset = (char*)malloc(len + 1);
+      strncpy(encoding, encoding_start, len);
+      has_encoding = 1;
+    } else {
+      has_encoding = 0;
+    }
+  }
+  
+  str++;
+  len = strlen(str);
+  text = (char*)malloc(len + 1);
+  memset(text, 0, len + 1);
+  
+  res = urldecode(text, str, 0);
+  if (res > 0) {
+    
+    r = charconv(tocode, charset, text, strlen(text), &wordutf8);
+    if (wordutf8 != NULL) {
+      str = strdup(wordutf8);
+      * result = str;
+      free(wordutf8);
+      ret = 1;
+    }
+  }
+  
+  if (ret == 0) {
+    str = strdup(message);
+    * result = str;
+  }
+  
+  if (charset != NULL) {
+    free(charset);
+  }
+  if (encoding != NULL) {
+    free(encoding);
+  }
+  
+  return 0;
+}
+
+
+/**
+ * decode a percent-encoded C string with optional path normalization
+ *
+ * The buffer pointed to by @dst must be at least strlen(@src) bytes.
+ * Decoding stops at the first character from @src that decodes to null.
+ * Path normalization will remove redundant slashes and slash+dot sequences,
+ * as well as removing path components when slash+dot+dot is found. It will
+ * keep the root slash (if one was present) and will stop normalization
+ * at the first questionmark found (so query parameters won't be normalized).
+ *
+ * @param dst       destination buffer
+ * @param src       source buffer
+ * @param normalize perform path normalization if nonzero
+ * @return          number of valid characters in @dst
+ * @author          Johan Lindh <johan@linkdata.se>
+ * @legalese        BSD licensed (http://opensource.org/licenses/BSD-2-Clause)
+ */
+static long urldecode(char* dst, const char* src, int normalize)
+{
+  char* org_dst = dst;
+  int slash_dot_dot = 0;
+  char ch, a, b;
+  do {
+    ch = *src++;
+    if (ch == '%' && isxdigit(a = src[0]) && isxdigit(b = src[1])) {
+      if (a < 'A') a -= '0';
+      else if(a < 'a') a -= 'A' - 10;
+      else a -= 'a' - 10;
+      if (b < 'A') b -= '0';
+      else if(b < 'a') b -= 'A' - 10;
+      else b -= 'a' - 10;
+      ch = 16 * a + b;
+      src += 2;
+    }
+    if (normalize) {
+      switch (ch) {
+        case '/':
+          if (slash_dot_dot < 3) {
+            /* compress consecutive slashes and remove slash-dot */
+            dst -= slash_dot_dot;
+            slash_dot_dot = 1;
+            break;
+          }
+          /* fall-through */
+        case '?':
+          /* at start of query, stop normalizing */
+          if (ch == '?')
+            normalize = 0;
+          /* fall-through */
+        case '\0':
+          if (slash_dot_dot > 1) {
+            /* remove trailing slash-dot-(dot) */
+            dst -= slash_dot_dot;
+            /* remove parent directory if it was two dots */
+            if (slash_dot_dot == 3)
+              while (dst > org_dst && *--dst != '/')
+              /* empty body */;
+            slash_dot_dot = (ch == '/') ? 1 : 0;
+            /* keep the root slash if any */
+            if (!slash_dot_dot && dst == org_dst && *dst == '/')
+              ++dst;
+          }
+          break;
+        case '.':
+          if (slash_dot_dot == 1 || slash_dot_dot == 2) {
+            ++slash_dot_dot;
+            break;
+          }
+          /* fall-through */
+        default:
+          slash_dot_dot = 0;
+      }
+    }
+    *dst++ = ch;
+  } while(ch);
+  return (dst - org_dst) - 1;
 }
