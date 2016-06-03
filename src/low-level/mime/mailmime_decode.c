@@ -912,7 +912,8 @@ static int mailmime_etoken_parse(const char * message, size_t length,
 
 
 LIBETPAN_EXPORT
-int mailmime_encoded_phrase_parse2(const char * message,
+int mailmime_encoded_phrase_parse2(const char * default_fromcode,
+                                   const char * message,
                                    const char * tocode,
                                    char ** result)
 {
@@ -961,9 +962,13 @@ int mailmime_encoded_phrase_parse2(const char * message,
   text = (char*)malloc(length - secondQuotes);
   memset(text, 0, length - secondQuotes);
   res = urldecode(text, message+current, 0);
-  if (res > 0 && strcmp(tocode,charset) != 0) {
+  if (res > 0 && strcasecmp(tocode,charset) != 0) {
     char * wordutf8 = NULL;
-    charconv(tocode, charset, text, strlen(text), &wordutf8);
+    if (strcasecmp(charset, "unknown") == 0) {
+        charconv(tocode, default_fromcode, text, strlen(text), &wordutf8);
+    }else{
+        charconv(tocode, charset, text, strlen(text), &wordutf8);
+    }
     if (wordutf8 != NULL) {
       * result = wordutf8;
     } else {
