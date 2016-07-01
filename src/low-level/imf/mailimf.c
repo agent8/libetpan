@@ -1666,25 +1666,25 @@ static int mailimf_phrase_parse(const char * message, size_t length,
     }
     if (r == MAILIMF_NO_ERROR) {
       if (!first) {
-	if (mmap_string_append_c(gphrase, ' ') == NULL) {
-	  mailimf_word_free(word);
-	  res = MAILIMF_ERROR_MEMORY;
-	  goto free;
-	}
+          if (mmap_string_append_c(gphrase, ' ') == NULL) {
+            mailimf_word_free(word);
+            res = MAILIMF_ERROR_MEMORY;
+            goto free;
+          }
       }
       if (mmap_string_append(gphrase, word) == NULL) {
-	mailimf_word_free(word);
-	res = MAILIMF_ERROR_MEMORY;
-	goto free;
+          mailimf_word_free(word);
+          res = MAILIMF_ERROR_MEMORY;
+          goto free;
       }
       mailimf_word_free(word);
       first = FALSE;
     }
     else if (r == MAILIMF_ERROR_PARSE)
-      break;
+        break;
     else {
-      res = r;
-      goto free;
+        res = r;
+        goto free;
     }
   }
 
@@ -3018,16 +3018,60 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
   if ((r != MAILIMF_NO_ERROR) && (r != MAILIMF_ERROR_PARSE)) {
     res = r;
     goto err;
+  } else {
+      * pdisplay_name = display_name;
   }
 
   r = mailimf_angle_addr_parse(message, length, &cur_token, &angle_addr);
   if (r != MAILIMF_NO_ERROR) {
-    res = r;
-    goto free_display_name;
+    int state = 0;
+    int index = 0;
+    size_t count = display_name == NULL? 0 : strlen(display_name);
+    while (state != -1 && state != 3 && index < count){
+      char c = display_name[index];
+      switch (c) {
+        case '\r':
+        case '\n':
+        case '\t':
+        case ' ':
+          break;
+        case '<':
+          if (state == 0) {
+            state = 1;
+          } else {
+            state = -1;
+          }
+          break;
+        case '>':
+          if (state == 2) {
+            state = 3;
+          } else {
+            state = -1;
+          }
+          break;
+        default:
+          if (state == 0) {
+            state = -1;
+          } else if (state == 1) {
+            if (c != '@') {
+              state = 2;
+            } else {
+              state = -1;
+            }
+          }
+          break;
+      }
+      index++;
+    }
+    if (state == 3) {
+      //This is an angle-addr. throw the error
+      res = r;
+      goto free_display_name;
+    }
+  } else {
+    * pangle_addr = angle_addr;
   }
 
-  * pdisplay_name = display_name;
-  * pangle_addr = angle_addr;
   * indx = cur_token;
 
   return MAILIMF_NO_ERROR;
