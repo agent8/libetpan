@@ -3018,16 +3018,18 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
   if ((r != MAILIMF_NO_ERROR) && (r != MAILIMF_ERROR_PARSE)) {
     res = r;
     goto err;
-  } else {
-      * pdisplay_name = display_name;
   }
 
   r = mailimf_angle_addr_parse(message, length, &cur_token, &angle_addr);
   if (r != MAILIMF_NO_ERROR) {
+    if (display_name == NULL){
+      res = r;
+      goto err;
+    }
     int state = 0;
     int index = 0;
-    size_t count = display_name == NULL? 0 : strlen(display_name);
-    while (state != -1 && state != 3 && index < count){
+    size_t count = strlen(display_name);
+    while (state != -1 && state != 5 && index < count){
       char c = display_name[index];
       switch (c) {
         case '\r':
@@ -3043,6 +3045,13 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
           }
           break;
         case '>':
+          if (state == 4) {
+            state = 5;
+          } else {
+            state = -1;
+          }
+          break;
+        case '@':
           if (state == 2) {
             state = 3;
           } else {
@@ -3058,20 +3067,27 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
             } else {
               state = -1;
             }
+          } else if (state == 3) {
+            if (c != '@') {
+              state = 4;
+            } else {
+              state = -1;
+            }
           }
           break;
       }
       index++;
     }
-    if (state == 3) {
-      //This is an angle-addr. throw the error
+    if (state == 5) {
+      //It is may be an angle-addr. It will be handled by mailimf_angle_addr_parse
       res = r;
       goto free_display_name;
     }
   } else {
     * pangle_addr = angle_addr;
   }
-
+  
+  * pdisplay_name = display_name;
   * indx = cur_token;
 
   return MAILIMF_NO_ERROR;
