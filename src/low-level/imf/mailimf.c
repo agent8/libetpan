@@ -2884,6 +2884,24 @@ static int mailimf_zone_parse(const char * message, size_t length,
   return MAILIMF_NO_ERROR;
 }
 
+static int validate_mail(const char addr[]) {
+  int atIdx;
+  int atCnt = 0;
+  int i;
+  
+  for(i = 0 ; i < strlen(addr) ; i++) {
+    if (addr[i] == '@')
+    {
+      atCnt++;
+      atIdx = i;
+    }
+  }
+  if (atCnt == 1) {
+    return 0;
+  }
+  return -1;
+}
+
 /*
 address         =       mailbox / group
 */
@@ -2974,6 +2992,10 @@ int mailimf_mailbox_parse(const char * message, size_t length,
     goto err;
   }
 
+  if (addr_spec == NULL && display_name != NULL && validate_mail(display_name) == 0) {
+    addr_spec = strdup(display_name);
+  }
+  
   mailbox = mailimf_mailbox_new(display_name, addr_spec);
   if (mailbox == NULL) {
     res = MAILIMF_ERROR_MEMORY;
