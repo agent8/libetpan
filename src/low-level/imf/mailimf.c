@@ -2884,24 +2884,6 @@ static int mailimf_zone_parse(const char * message, size_t length,
   return MAILIMF_NO_ERROR;
 }
 
-static int validate_mail(const char addr[]) {
-  int atIdx;
-  int atCnt = 0;
-  int i;
-  
-  for(i = 0 ; i < strlen(addr) ; i++) {
-    if (addr[i] == '@')
-    {
-      atCnt++;
-      atIdx = i;
-    }
-  }
-  if (atCnt == 1) {
-    return 0;
-  }
-  return -1;
-}
-
 /*
 address         =       mailbox / group
 */
@@ -2991,10 +2973,6 @@ int mailimf_mailbox_parse(const char * message, size_t length,
     res = r;
     goto err;
   }
-
-  if (addr_spec == NULL && display_name != NULL && validate_mail(display_name) == 0) {
-    addr_spec = strdup(display_name);
-  }
   
   mailbox = mailimf_mailbox_new(display_name, addr_spec);
   if (mailbox == NULL) {
@@ -3050,6 +3028,7 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
     }
     int state = 0;
     int index = 0;
+    int hasAngle = 1;
     size_t count = strlen(display_name);
     while (state != -1 && state != 5 && index < count){
       char c = display_name[index];
@@ -3082,7 +3061,12 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
           break;
         default:
           if (state == 0) {
-            state = -1;
+            if (c != '@') {
+              state = 2;
+              hasAngle = 0;
+            } else {
+              state = -1;
+            }
           } else if (state == 1) {
             if (c != '@') {
               state = 2;
@@ -3100,7 +3084,7 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
       }
       index++;
     }
-    if (state == 5) {
+    if (state == 5 || (!hasAngle && state == 4)) {
       //It is may be an angle-addr. It will be handled by mailimf_angle_addr_parse
       res = r;
       goto free_display_name;
