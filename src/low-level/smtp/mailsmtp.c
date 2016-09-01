@@ -1256,7 +1256,7 @@ int mailesmtp_auth_sasl(mailsmtp * session, const char * auth_type,
   memcpy(secret->data, password, len + 1);
   
   session->smtp_sasl.sasl_server_fqdn = server_fqdn;
-  session->smtp_sasl.sasl_login = login;
+  session->smtp_sasl.sasl_login = (auth_type != NULL && strcmp(auth_type, "PLAIN") == 0) ? NULL : login;
   session->smtp_sasl.sasl_auth_name = auth_name;
   session->smtp_sasl.sasl_password = password;
   session->smtp_sasl.sasl_realm = realm;
