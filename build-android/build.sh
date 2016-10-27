@@ -1,10 +1,11 @@
 #!/bin/sh
 
 build_version=4
-ANDROID_PLATFORM=android-16
+ANDROID_PLATFORM=android-24
 openssl_build_version=2
 cyrus_sasl_build_version=2
-archs="armeabi armeabi-v7a x86"
+archs="armeabi armeabi-v7a x86 arm64-v8a"
+#archs="armeabi"
 package_name=libetpan-android
 
 current_dir="`pwd`"

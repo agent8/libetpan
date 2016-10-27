@@ -2,7 +2,7 @@
 
 build_version=2
 version=1.0.2d
-android_platform=android-16
+android_platform=android-24
 package_name=openssl-android
 
 if test "x$ANDROID_NDK" = x ; then
@@ -61,6 +61,17 @@ function build_armeabi_v7a {
   build
 }
 
+function build_arm64_v8a {
+toolchain=aarch64-linux-android-4.9
+toolchain_name=aarch64-linux-android
+arch_cflags=""
+arch_ldflags="-Wl,--fix-cortex-a8"
+arch_dir_name="arm64-v8a"
+openssl_configure_mode="linux-generic64"
+
+build
+}
+
 function build {
   rm -rf "$current_dir/src"
   mkdir -p "$current_dir/src"
@@ -85,7 +96,9 @@ function build {
   export CXXFLAGS="$arch_cflags -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 -frtti -fexceptions "
   export CFLAGS="$arch_cflags -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 "
   export LDFLAGS="$arch_ldflags"
+#  ./Configure "$openssl_configure_mode"
   ./Configure "$openssl_configure_mode"
+#    ./config  -DB_ENDIAN no-asm
   make
   
   mkdir -p "$current_dir/$package_name-$build_version"
@@ -101,6 +114,7 @@ current_dir="`pwd`"
 build_armeabi
 build_armeabi_v7a
 build_x86
+build_arm64_v8a
 
 cd "$current_dir"
 zip -qry "$package_name-$build_version.zip" "$package_name-$build_version"
