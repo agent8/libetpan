@@ -8602,8 +8602,15 @@ mailimap_number_parse(mailstream * fd, MMAPString * buffer,
 	  number = 0;
 	}
 	
-  if (!parsed)
-    return MAILIMAP_ERROR_PARSE;
+  if (!parsed) {
+    // workaround for NIL
+    r = mailimap_token_case_insensitive_parse(fd, buffer, &cur_token, "NIL");
+    if (r == MAILIMAP_NO_ERROR) {
+      number = 0;
+    } else {
+        return MAILIMAP_ERROR_PARSE;
+    }
+  }
 
   * result = number;
   * indx = cur_token;
