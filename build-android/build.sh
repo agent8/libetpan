@@ -53,14 +53,8 @@ mkdir -p "$current_dir/$package_name-$build_version/include"
 cp -r include/libetpan "$current_dir/$package_name-$build_version/include"
 
 # Start building.
-ANDROID_PLATFORM=android-16
-archs="armeabi armeabi-v7a x86"
-for arch in $archs ; do
-  TARGET_ARCH_ABI=$arch
-  build
-done
-ANDROID_PLATFORM=android-24
-archs="arm64-v8a"
+ANDROID_PLATFORM=android-21
+archs="armeabi armeabi-v7a x86 arm64-v8a x86_64"
 for arch in $archs ; do
   TARGET_ARCH_ABI=$arch
   build

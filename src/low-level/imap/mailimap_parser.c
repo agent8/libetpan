@@ -3773,8 +3773,13 @@ mailimap_body_type_text_parse(mailstream * fd, MMAPString * buffer, struct maili
 
   r = mailimap_body_fld_lines_parse(fd, buffer, parser_ctx, &cur_token, &body_fld_lines);
   if (r != MAILIMAP_NO_ERROR) {
-    res = r;
-    goto free_body_fields;
+      // workaround for mail.sohu.com, NIL for text lines
+      r = mailimap_token_case_insensitive_parse(fd, buffer, &cur_token, "NIL");
+      if (r != MAILIMAP_NO_ERROR) {
+        res = r;
+        goto free_body_fields;
+      }
+      body_fld_lines = 0;
   }
 
   body_type_text = mailimap_body_type_text_new(media_text, body_fields,

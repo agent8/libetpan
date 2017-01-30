@@ -60,17 +60,11 @@ function build {
 }
 
 # Start building.
-ANDROID_PLATFORM=android-16
-archs="armeabi armeabi-v7a x86"
+ANDROID_PLATFORM=android-21
+archs="armeabi armeabi-v7a x86 arm64-v8a x86_64"
 for arch in $archs ; do
-  TARGET_ARCH_ABI=$arch
-  build
-done
-ANDROID_PLATFORM=android-24
-archs="arm64-v8a"
-for arch in $archs ; do
-  TARGET_ARCH_ABI=$arch
-  build
+TARGET_ARCH_ABI=$arch
+build
 done
 
 cd "$current_dir"
