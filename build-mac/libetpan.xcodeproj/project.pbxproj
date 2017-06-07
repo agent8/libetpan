@@ -2693,6 +2693,12 @@
 					"-DLIBETPAN_IOS_DISABLE_SSL=1",
 					"-DXCODE_BETA=1",
 				);
+				"OTHER_CFLAGS[sdk=iphonesimulator11.0]" = (
+					"-DHAVE_CFNETWORK=1",
+					"-DHAVE_CONFIG_H=1",
+					"-DLIBETPAN_IOS_DISABLE_SSL=1",
+					"-DXCODE_BETA=1",
+				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "etpan-ios";
 				SDKROOT = iphoneos;
@@ -2773,6 +2779,12 @@
 					"-DLIBETPAN_IOS_DISABLE_SSL=1",
 					"-DXCODE_BETA=1",
 				);
+				"OTHER_CFLAGS[sdk=iphonesimulator11.0]" = (
+					"-DHAVE_CFNETWORK=1",
+					"-DHAVE_CONFIG_H=1",
+					"-DLIBETPAN_IOS_DISABLE_SSL=1",
+					"-DXCODE_BETA=1",
+				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "etpan-ios";
 				SDKROOT = iphoneos;
@@ -2802,6 +2814,12 @@
 					"-DLIBETPAN_IOS_DISABLE_SSL=1",
 				);
 				"OTHER_CFLAGS[sdk=iphoneos11.0]" = (
+					"-DHAVE_CFNETWORK=1",
+					"-DHAVE_CONFIG_H=1",
+					"-DLIBETPAN_IOS_DISABLE_SSL=1",
+					"-DXCODE_BETA=1",
+				);
+				"OTHER_CFLAGS[sdk=iphonesimulator11.0]" = (
 					"-DHAVE_CFNETWORK=1",
 					"-DHAVE_CONFIG_H=1",
 					"-DLIBETPAN_IOS_DISABLE_SSL=1",
