@@ -44,9 +44,6 @@ function build_x86_64 {
   arch_cflags=""
   arch_ldflags=""
   arch_dir_name="x86_64"
-#openssl_configure_mode="android64"
-# openssl_configure_mode="linux-generic64 -m64"
-#openssl_configure_mode="android-x86"
   openssl_configure_mode="android no-asm"
   ANDROID_PLATFORM=android-21
   ARCH_FOLDER=arch-x86_64
@@ -76,6 +73,26 @@ function build_armeabi {
   export SYSTEM=android
   export ARCH=arm
   export CROSS_COMPILE="arm-linux-androideabi-"
+  export ANDROID_DEV="$ANDROID_NDK/platforms/$ANDROID_PLATFORM/$ARCH_FOLDER/usr"
+  export HOSTCC=gcc
+
+  build
+}
+
+function build_x86 {
+  toolchain=x86-4.9
+  toolchain_name=i686-linux-android
+  arch_cflags="-march=i686 -msse3 -mstackrealign -mfpmath=sse"
+  arch_ldflags=""
+  arch_dir_name="x86"
+  openssl_configure_mode="android-x86"
+  ANDROID_PLATFORM=android-16
+  ARCH_FOLDER=arch-x86
+  export MACHINE=i386
+  export RELEASE=2.6.37
+  export SYSTEM=android
+  export ARCH=x86
+  export CROSS_COMPILE="i686-linux-android-"
   export ANDROID_DEV="$ANDROID_NDK/platforms/$ANDROID_PLATFORM/$ARCH_FOLDER/usr"
   export HOSTCC=gcc
 
@@ -132,7 +149,9 @@ function build {
   tar xzf "$current_dir/packages/openssl-$version.tar.gz"
   cd openssl-$version
 
+  # toolchain_path="`pwd`/$toolchain_name"
   toolchain_path="$ANDROID_NDK/toolchains/$toolchain/prebuilt/darwin-x86_64"
+  # "$ANDROID_NDK/build/tools/make-standalone-toolchain.sh" --platform=$android_platform --toolchain=$toolchain --install-dir="$toolchain_path"
   toolchain_bin_path="$toolchain_path/bin"
   saved_path="$PATH"
   export PATH=$PATH:$toolchain_bin_path
