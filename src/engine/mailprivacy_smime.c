@@ -1596,8 +1596,11 @@ static int get_cert_from_sig(struct mailprivacy * privacy,
   snprintf(command, sizeof(command),
       "openssl pkcs7 -inform DER -in '%s' -out '%s' -print_certs 2>/dev/null",
       quoted_signature_filename, quoted_store_cert_filename);
-  
+#ifdef XCODE_BETA
+  //TODO: SZ: use posix_spawn
+#else
   r = system(command);
+#endif
   if (WEXITSTATUS(r) != 0) {
     res = MAIL_ERROR_COMMAND;
     goto unlink_signature;

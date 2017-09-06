@@ -155,6 +155,10 @@ int mailesmtp_auth_sasl(mailsmtp * session, const char * auth_type,
     const char * password, const char * realm);
 
 LIBETPAN_EXPORT
+int mailsmtp_auth_login(mailsmtp * session, const char * user, const char * pass);
+
+
+LIBETPAN_EXPORT
 int mailsmtp_noop(mailsmtp * session);
 
 LIBETPAN_EXPORT

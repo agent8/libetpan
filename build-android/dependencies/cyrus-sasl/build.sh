@@ -1,11 +1,9 @@
 #!/bin/sh
 
-version=2.1.25
-build_version=2
+version=2.1.26
+build_version=4
 ARCHIVE=cyrus-sasl-$version
-ANDROID_PLATFORM=android-16
-openssl_build_version=2
-archs="armeabi armeabi-v7a x86"
+openssl_build_version=3
 package_name=cyrus-sasl-android
 
 if test "x$ANDROID_NDK" = x ; then
@@ -62,9 +60,11 @@ function build {
 }
 
 # Start building.
+ANDROID_PLATFORM=android-21
+archs="armeabi armeabi-v7a x86 arm64-v8a x86_64"
 for arch in $archs ; do
-  TARGET_ARCH_ABI=$arch
-  build
+TARGET_ARCH_ABI=$arch
+build
 done
 
 cd "$current_dir"

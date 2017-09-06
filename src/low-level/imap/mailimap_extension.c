@@ -197,15 +197,17 @@ int mailimap_has_extension(mailimap * session, const char * extension_name)
       clistiter * cur;
       
       list = session->imap_connection_info->imap_capability->cap_list;
-      for(cur = clist_begin(list) ; cur != NULL ; cur = clist_next(cur)) {
-        struct mailimap_capability * cap;
-        
-        cap = clist_content(cur);
-        if (cap->cap_type != MAILIMAP_CAPABILITY_NAME)
-          continue;
-        
-        if (strcasecmp(cap->cap_data.cap_name, extension_name) == 0)
-          return 1;
+      if (list != NULL) {
+        for(cur = clist_begin(list) ; cur != NULL ; cur = clist_next(cur)) {
+          struct mailimap_capability * cap;
+          
+          cap = clist_content(cur);
+          if (cap->cap_type != MAILIMAP_CAPABILITY_NAME)
+            continue;
+          
+          if (strcasecmp(cap->cap_data.cap_name, extension_name) == 0)
+            return 1;
+        }
       }
     }
   }
@@ -222,16 +224,18 @@ int mailimap_has_authentication(mailimap * session, const char * authentication_
       clistiter * cur;
       
       list = session->imap_connection_info->imap_capability->cap_list;
-      for(cur = clist_begin(list) ; cur != NULL ; cur = clist_next(cur)) {
-        struct mailimap_capability * cap;
-        
-        cap = clist_content(cur);
-        if (cap->cap_type != MAILIMAP_CAPABILITY_AUTH_TYPE)
-          continue;
-        
-        if (strcasecmp(cap->cap_data.cap_name, authentication_name) == 0)
-          return 1;
-        
+      if (list != NULL) {
+        for(cur = clist_begin(list) ; cur != NULL ; cur = clist_next(cur)) {
+          struct mailimap_capability * cap;
+          
+          cap = clist_content(cur);
+          if (cap->cap_type != MAILIMAP_CAPABILITY_AUTH_TYPE)
+            continue;
+          
+          if (strcasecmp(cap->cap_data.cap_name, authentication_name) == 0)
+            return 1;
+          
+        }
       }
     }
   }

@@ -2,11 +2,12 @@
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
-version=2.1.25
+version=2.1.26
 ARCHIVE=cyrus-sasl-$version
 ARCHIVE_NAME=$ARCHIVE.tar.gz
 ARCHIVE_PATCH=$ARCHIVE.patch
-url=ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/$ARCHIVE_NAME
+#url=ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/$ARCHIVE_NAME
+url=ftp://ftp.cyrusimap.org/cyrus-sasl/$ARCHIVE_NAME
 patchfile=cyrus-2.1.25-libetpan.patch
 
 scriptdir="`pwd`"
@@ -27,26 +28,26 @@ mkdir -p "$tmpdir"
 mkdir -p "$srcdir"
 
 if test -f "$resultdir/libsasl-$version-ios.tar.gz"; then
-	echo already built
-	cd "$scriptdir/.."
-	tar xzf "$resultdir/libsasl-$version-ios.tar.gz"
-	exit 0
+    echo already built
+    cd "$scriptdir/.."
+    tar xzf "$resultdir/libsasl-$version-ios.tar.gz"
+    exit 0
 fi
 
 # download package file
 
 if test -f "$current_dir/packages/$ARCHIVE_NAME" ; then
-	:
+    :
 else
-	echo "download source package - $url"
-	
-	mkdir -p "$current_dir/packages"
+    echo "download source package - $url"
+    
+    mkdir -p "$current_dir/packages"
   cd "$current_dir/packages"
-	curl -O "$url"
-	if test x$? != x0 ; then
-		echo fetch of $ARCHIVE_NAME failed
-		exit 1
-	fi
+    curl -O "$url"
+    if test x$? != x0 ; then
+        echo fetch of $ARCHIVE_NAME failed
+        exit 1
+    fi
 fi
 
 if [ ! -e "$current_dir/packages/$ARCHIVE_NAME" ]; then
@@ -124,7 +125,6 @@ for TARGET in $TARGETS; do
     DEVELOPER="$(xcode-select --print-path)"
     SDK_ID="$(echo "$TARGET$SDK_IOS_VERSION" | tr A-Z a-z)"
     SYSROOT="$(xcodebuild -version -sdk "$SDK_ID" 2>/dev/null | egrep '^Path: ' | cut -d ' ' -f 2)"
-
     case $TARGET in
         (iPhoneOS) 
             ARCH=arm
@@ -139,15 +139,13 @@ for TARGET in $TARGETS; do
     esac
     
     for MARCH in $MARCHS; do
-				echo "building for $TARGET - $MARCH"
-				echo "*** building for $TARGET - $MARCH ***" >> "$logfile" 2>&1
-			
+                echo "building for $TARGET - $MARCH"
+                echo "*** building for $TARGET - $MARCH ***" >> "$logfile" 2>&1
+            
         PREFIX=${BUILD_DIR}/${LIB_NAME}/${TARGET}${SDK_IOS_VERSION}${MARCH}
         rm -rf $PREFIX
-
         export CPPFLAGS="-arch ${MARCH} -isysroot ${SYSROOT}"
         export CFLAGS="${CPPFLAGS} -Os ${EXTRA_FLAGS}"
-
         OPENSSL="--with-openssl=$BUILD_DIR/openssl-1.0.0d/universal"
         PLUGINS="--enable-otp=no --enable-digest=no --with-des=no --enable-login"
         ./configure --host=${ARCH} --prefix=$PREFIX --enable-shared=no --enable-static=yes --with-pam=$BUILD_DIR/openpam-20071221/universal $PLUGINS >> "$logfile" 2>&1
@@ -176,9 +174,7 @@ for TARGET in $TARGETS; do
         find . -name config.cache -print0 | xargs -0 rm
       done
 done
-
 echo "*** creating universal libs ***" >> "$logfile" 2>&1
-
 rm -rf "$INSTALL_PATH"
 mkdir -p "$INSTALL_PATH"
 mkdir -p "$INSTALL_PATH/lib"
@@ -196,9 +192,7 @@ for lib in $ALL_LIBS; do
     done
     lipo -create ${LIBS} -output "${INSTALL_PATH}/lib/${lib}"
 done
-
 echo "*** creating built package ***" >> "$logfile" 2>&1
-
 cd "$BUILD_DIR"
 mkdir -p libsasl-ios
 cp -r "$INSTALL_PATH"/* libsasl-ios/
@@ -208,8 +202,6 @@ mv "libsasl-$version-ios.tar.gz" "$resultdir"
 cd "$resultdir"
 ln -s "libsasl-$version-ios.tar.gz" "libsasl-prebuilt-ios.tar.gz"
 rm -rf "$tempbuilddir"
-
 cd "$scriptdir/.."
 tar xzf "$resultdir/libsasl-$version-ios.tar.gz"
-
 exit 0

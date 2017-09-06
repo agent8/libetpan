@@ -1508,8 +1508,11 @@ int mailprivacy_spawn_and_wait(char * command, char * passphrase,
       close(fd_out);
       dup2(fd_err, 2);
       close(fd_err);
-      
+#ifdef XCODE_BETA
+      //TODO: SZ: use posix_spawn
+#else
       status = system(command);
+#endif
       
       exit(WEXITSTATUS(status));
     }

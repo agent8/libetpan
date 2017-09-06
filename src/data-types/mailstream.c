@@ -51,10 +51,151 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define DEFAULT_NETWORK_TIMEOUT 300
+// turn on for LOG protocoal layer raw data
+//#define LOG_RAW_DATA
 
+#ifdef LOG_RAW_DATA
+#include <stdio.h>
+#include <pthread.h>
+#if defined(ANDROID) || defined(__ANDROID__)
+#include <android/log.h>
+#endif
+#endif
+
+#define DEFAULT_NETWORK_TIMEOUT 300
 struct timeval mailstream_network_delay =
 {  DEFAULT_NETWORK_TIMEOUT, 0 };
+
+
+
+#ifdef LOG_RAW_DATA
+
+#define LOG_BUF_SIZE 128
+#define LOG_MAX_SESSION 20
+
+static pthread_mutex_t logLock;
+static int logLockInited = 0;
+
+typedef struct _SessionLogBuf {
+    long stream;
+    char buf[LOG_BUF_SIZE + 8];
+  int len;
+} SessionLogBuf;
+static SessionLogBuf logBufList[LOG_MAX_SESSION];
+
+static void print_os(const char* s) {
+  if (s == NULL) {
+    return;
+  }
+
+  if (strlen(s) > LOG_BUF_SIZE) {
+    return;
+  }
+
+#if defined(ANDROID) || defined(__ANDROID__)
+  __android_log_print(ANDROID_LOG_INFO, "[HJ]libetpan", "%s", s);
+#else
+  printf("%s", s);
+#endif
+}
+
+void printoutSessionBuffer(SessionLogBuf* sessionBuf) {
+  if (sessionBuf->len == 0) {
+    return;
+  }
+
+    sessionBuf->buf[sessionBuf->len] = 0;
+    print_os(sessionBuf->buf);
+
+  sessionBuf->len = 0;
+}
+
+static SessionLogBuf* getSessionLogBuf(long stream) {
+
+  int i = 0;
+  SessionLogBuf* ret = NULL;
+
+    for (i = 0; i < LOG_MAX_SESSION; i++) {
+    if (logBufList[i].stream == stream) {
+      return &logBufList[i];
+    }
+  }
+
+    for (i = 0; i < LOG_MAX_SESSION; i++) {
+    if (logBufList[i].stream == 0 || logBufList[i].len == 0) {
+      logBufList[i].stream = stream;
+      logBufList[i].len = 0;
+      return &logBufList[i];
+    }
+  }
+
+  int max = 0;
+    for (i = 0; i < LOG_MAX_SESSION; i++) {
+    if (logBufList[i].len > max) {
+      max = logBufList[i].len;
+      ret = &logBufList[i];
+    }
+  }
+
+  printoutSessionBuffer(ret);
+  ret->stream = stream;
+
+  return ret;
+}
+
+
+void print_buflog(const mailstream * s, const void * buf, ssize_t count)
+{
+    if (buf == NULL || count <= 0) {
+      return;
+    }
+
+    int len = ((count + 7) / 8) * 8 + 8;
+    char *str = (char*)malloc(len);
+    memset(str, 0, len);
+    memcpy(str, buf, count);
+
+    if (!logLockInited) {
+        pthread_mutex_init(&logLock, NULL);
+        logLockInited = 1;
+
+        pthread_mutex_lock(&logLock);
+        for (int i = 0; i < LOG_MAX_SESSION; i++) {
+            memset(&logBufList[i], 0, sizeof(SessionLogBuf));
+        }
+        pthread_mutex_unlock(&logLock);
+    }
+
+    pthread_mutex_lock(&logLock);
+    {
+        int index = 0;
+        SessionLogBuf* logBuf = getSessionLogBuf((long)((void*)s));
+
+        while (index < count) {
+
+            if (logBuf->len > LOG_BUF_SIZE) {
+              print_os("Fatal !!!! logBuf->len > LOG_BUF_SIZE");
+            }
+
+            if (logBuf->len >= LOG_BUF_SIZE) {
+                printoutSessionBuffer(logBuf);
+                logBuf->len = 0;
+                continue;
+            }
+
+            char c = str[index++];
+            logBuf->buf[logBuf->len++] = c;
+            if (c == '\n') {
+                printoutSessionBuffer(logBuf);
+                logBuf->len = 0;
+            }
+        }
+    }
+    pthread_mutex_unlock(&logLock);
+
+    free(str);
+}
+#endif
 
 LIBETPAN_EXPORT
 mailstream * mailstream_new(mailstream_low * low, size_t buffer_size)
@@ -131,7 +272,7 @@ static ssize_t write_direct(mailstream * s, const void * buf, size_t count)
 }
 
 LIBETPAN_EXPORT
-ssize_t mailstream_write(mailstream * s, const void * buf, size_t count)
+ssize_t mailstream_write_hj(mailstream * s, const void * buf, size_t count)
 {
   int r;
 
@@ -181,6 +322,18 @@ int mailstream_flush(mailstream * s)
   return -1;
 }
 
+ssize_t mailstream_write(mailstream * s, const void * buf, size_t count) {
+  ssize_t t = mailstream_write_hj(s, buf, count);
+
+  #ifdef LOG_RAW_DATA
+  if (t > 0) {
+    print_buflog(s, buf, t);
+  }
+  #endif
+
+  return  t;
+}
+
 static ssize_t read_from_internal_buffer(mailstream * s,
 					 void * buf, size_t count)
 {
@@ -197,8 +350,8 @@ static ssize_t read_from_internal_buffer(mailstream * s,
   return count;
 }
 
-LIBETPAN_EXPORT
-ssize_t mailstream_read(mailstream * s, void * buf, size_t count)
+
+ssize_t mailstream_read_hj(mailstream * s, void * buf, size_t count)
 {
   ssize_t read_bytes;
   char * cur_buf;
@@ -251,6 +404,21 @@ ssize_t mailstream_read(mailstream * s, void * buf, size_t count)
 
   return count - left;
 }
+
+LIBETPAN_EXPORT
+ssize_t mailstream_read(mailstream * s, void * buf, size_t count)
+{
+  ssize_t t = mailstream_read_hj(s, buf, count);
+
+  #ifdef LOG_RAW_DATA
+  if (t > 0) {
+    print_buflog(s, buf, t);
+  }
+  #endif
+
+  return t;
+}
+
 
 LIBETPAN_EXPORT
 mailstream_low * mailstream_get_low(mailstream * s)
