@@ -1281,6 +1281,16 @@ mailimap_custom_string_parse(mailstream * fd, MMAPString * buffer, struct mailim
     * result = gstr;
     return MAILIMAP_NO_ERROR;
   }
+  else if (end >1 && buffer->str[end-1] == '\\' && buffer->str[end] == ')') {
+	  // workaround for
+	  // * XLIST (\HasNoChildren \) "." "confirmed-ham"
+	  gstr = malloc(1);
+	  gstr[0] = '\0';
+
+	  * indx = end;
+	  * result = gstr;
+	  return MAILIMAP_NO_ERROR;
+  }
   else
     return MAILIMAP_ERROR_PARSE;
 }
