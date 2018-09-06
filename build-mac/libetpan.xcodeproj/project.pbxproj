@@ -624,7 +624,7 @@
 		C668E2D81736004400A2BB47 /* mailimap_compress.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mailimap_compress.c; sourceTree = "<group>"; };
 		C668E2D91736004400A2BB47 /* mailimap_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mailimap_compress.h; sourceTree = "<group>"; };
 		C682E2C015B315EF00BE9DA7 /* libetpan-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libetpan-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C69AB10A10546FE500F32FBD /* libetpan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libetpan.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C69AB10A10546FE500F32FBD /* libetpan-osx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libetpan-osx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C69BA85F17DF63C900D601B7 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		C6CE9B1514AA9C8900D20BA6 /* xgmlabels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xgmlabels.c; sourceTree = "<group>"; };
 		C6CE9B1814AA9C9C00D20BA6 /* xgmlabels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xgmlabels.h; sourceTree = "<group>"; };
@@ -1018,7 +1018,7 @@
 			isa = PBXGroup;
 			children = (
 				8DC2EF5B0486A6940098B216 /* libetpan.framework */,
-				C69AB10A10546FE500F32FBD /* libetpan.a */,
+				C69AB10A10546FE500F32FBD /* libetpan-osx.a */,
 				C682E2C015B315EF00BE9DA7 /* libetpan-ios.a */,
 			);
 			name = Products;
@@ -1795,7 +1795,7 @@
 			);
 			name = "static libetpan";
 			productName = "static libetpan";
-			productReference = C69AB10A10546FE500F32FBD /* libetpan.a */;
+			productReference = C69AB10A10546FE500F32FBD /* libetpan-osx.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -2484,6 +2484,7 @@
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@loader_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/lib/;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.etpan.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = libetpan;
 				SDKROOT = macosx;
@@ -2677,7 +2678,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = etpan;
+				PRODUCT_NAME = "etpan-osx";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -2817,7 +2818,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = etpan;
+				PRODUCT_NAME = "etpan-osx";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -3002,7 +3003,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = etpan;
+				PRODUCT_NAME = "etpan-osx";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -3018,7 +3019,7 @@
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = etpan;
+				PRODUCT_NAME = "etpan-osx";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
