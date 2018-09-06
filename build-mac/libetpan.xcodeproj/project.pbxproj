@@ -2484,7 +2484,7 @@
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/openssl/1.0.2l/lib/;
+				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.etpan.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = libetpan;
 				SDKROOT = macosx;
