@@ -1491,7 +1491,11 @@ static int pgp_sign_mime(struct mailprivacy * privacy,
   
   multipart = mailprivacy_new_file_part(privacy, NULL,
       "multipart/signed", -1);
-  
+  if (multipart == NULL) {
+    res = MAIL_ERROR_MEMORY;
+    goto unlink_description;
+  }
+
   content = multipart->mm_content_type;
   
   param = mailmime_param_new_with_data("micalg", "pgp-sha1");
@@ -1871,6 +1875,10 @@ static int pgp_sign_encrypt_mime(struct mailprivacy * privacy,
   
   multipart = mailprivacy_new_file_part(privacy, NULL,
       "multipart/encrypted", -1);
+  if (multipart == NULL) {
+    res = MAIL_ERROR_MEMORY;
+    goto unlink_description;
+  }
   
   content = multipart->mm_content_type;
   
@@ -2092,6 +2100,10 @@ static int pgp_encrypt_mime(struct mailprivacy * privacy,
   
   multipart = mailprivacy_new_file_part(privacy, NULL,
       "multipart/encrypted", -1);
+  if (multipart == NULL) {
+    res = MAIL_ERROR_MEMORY;
+    goto unlink_description;
+  }
   
   content = multipart->mm_content_type;
   
