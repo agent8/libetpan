@@ -134,7 +134,6 @@ xcuserdata/
 /tests/pop-sample
 
 # Windows
-third-party
 /build-windows/_headers_depends
 /build-windows/Makefile
 /build-windows/Makefile.in
