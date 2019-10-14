@@ -96,4 +96,9 @@ class win_init {
 
 /* Initialise  */
 static win_init windows_startup;
-
+/*
+// this a test api, verify win_init first init.
+void init_windows_startup() {
+	//static win_init windows_startup;
+}
+*/
