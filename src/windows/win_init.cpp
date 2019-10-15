@@ -36,7 +36,8 @@ Special class, initializers for windows
 #	include <config.h>
 #endif
 
-#include <winsock2.h>
+//#include <winsock2.h>
+#include "win_init.h"
 
 #ifdef _MSC_VER
 #include "mailstream_ssl_private.h"
@@ -95,10 +96,9 @@ class win_init {
 };
 
 /* Initialise  */
-static win_init windows_startup;
-/*
-// this a test api, verify win_init first init.
+//static win_init windows_startup;
+
+// win_init.cpp is c++ file, need c++ editor run.
 void init_windows_startup() {
-	//static win_init windows_startup;
+	static win_init windows_startup;
 }
-*/
