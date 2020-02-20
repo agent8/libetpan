@@ -1281,6 +1281,16 @@ mailimap_custom_string_parse(mailstream * fd, MMAPString * buffer, struct mailim
     * result = gstr;
     return MAILIMAP_NO_ERROR;
   }
+  else if (end >1 && buffer->str[end-1] == '\\' && buffer->str[end] == ')') {
+	  // workaround for
+	  // * XLIST (\HasNoChildren \) "." "confirmed-ham"
+	  gstr = malloc(1);
+	  gstr[0] = '\0';
+
+	  * indx = end;
+	  * result = gstr;
+	  return MAILIMAP_NO_ERROR;
+  }
   else
     return MAILIMAP_ERROR_PARSE;
 }
@@ -2530,8 +2540,12 @@ mailimap_body_fld_dsp_parse(mailstream * fd, MMAPString * buffer, struct mailima
   r = mailimap_string_parse(fd, buffer, parser_ctx, &cur_token, &name, NULL,
 			    progr_rate, progr_fun);
   if (r != MAILIMAP_NO_ERROR) {
-    res = r;
-    goto err;
+	  // workaround for  poczta.o2.pl
+	  // ... "mixed" ("boundary" "=_2891baa498be5e42610451634d3ff0aa") (inline) NIL))
+	  // body disposition (inline) is INVALID, just skip until the close
+	  while ((cur_token < buffer->len) && (*(buffer->str + cur_token) != ')')) {
+		  cur_token++;
+	  }
   }
 
   r = mailimap_space_parse(fd, buffer, &cur_token);
@@ -7718,6 +7732,20 @@ mailimap_msg_att_parse_progress(mailstream * fd, MMAPString * buffer, struct mai
                                                  body_progr_fun, items_progr_fun,
                                                  context, msg_att_handler, msg_att_context);
   if (r != MAILIMAP_NO_ERROR) {
+    if (mailimap_parser_context_is_qip_workaround_enabled(parser_ctx)) {
+      r = mailimap_cparenth_parse(fd, buffer, parser_ctx, &cur_token);
+      if (r == MAILIMAP_NO_ERROR) {
+        // QIP returns "* num FETCH ()" response for storeFlags operations.
+
+        list = clist_new();
+        if (list == NULL) {
+          res = MAILIMAP_ERROR_MEMORY;
+          goto free;
+        }
+        goto ok;
+      }
+    }
+
     res = r;
     goto err;
   }
@@ -7727,7 +7755,8 @@ mailimap_msg_att_parse_progress(mailstream * fd, MMAPString * buffer, struct mai
     res = r;
     goto free;
   }
-  
+
+ ok:
   msg_att = mailimap_msg_att_new(list);
   if (msg_att == NULL) {
     res = MAILIMAP_ERROR_MEMORY;

@@ -954,9 +954,13 @@ int mailmime_encoded_phrase_parse2(const char * default_fromcode,
   strncpy(charset, message, firstQuotes);
   charset[firstQuotes] = '\0';
   
-  encoding = (char*)malloc(secondQuotes - firstQuotes);
-  strncpy(encoding, message+firstQuotes+1, secondQuotes - firstQuotes -1);
-  encoding[secondQuotes-firstQuotes] = '\0';
+  //yyb: heap buffer overflow. In fact, encoding is never be used.
+  size_t encodingLength = secondQuotes - firstQuotes - 1;
+  if (encodingLength > 0) {
+    encoding = (char*)malloc(encodingLength + 1);
+    strncpy(encoding, message+firstQuotes+1, encodingLength);
+    //encoding[secondQuotes-firstQuotes] = '\0';
+  }
   
   size_t length = strlen(message);
   text = (char*)malloc(length - secondQuotes);
