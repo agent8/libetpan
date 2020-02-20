@@ -1605,6 +1605,7 @@ static int get_cert_from_sig(struct mailprivacy * privacy,
   snprintf(command, sizeof(command),
       "openssl pkcs7 -inform DER -in '%s' -out '%s' -print_certs 2>/dev/null",
       quoted_signature_filename, quoted_store_cert_filename);
+  
 #if !TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
   //https://github.com/dinhviethoa/libetpan/issues/275
   //system() is not supported on iOS 11.

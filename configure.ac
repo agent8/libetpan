@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 m4_define([maj_version], [1])
-m4_define([min_version], [8])
-m4_define([mic_version], [0])
-m4_define([api_current], [21])
+m4_define([min_version], [9])
+m4_define([mic_version], [4])
+m4_define([api_current], [25])
 m4_define([api_revision], [0])
 m4_define([api_compatibility], [20])
 dnl API version
@@ -23,7 +23,7 @@ dnl    reset to `0'. This release has a new, but backwards incompatible
 dnl    interface.
 dnl age = api_current - api_compatiblity
 
-AC_PREREQ(2.61)
+AC_PREREQ(2.69)
 AC_INIT([libetpan],[maj_version.min_version.mic_version],[libetpan-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([src/main/libetpan_version.h.in])
 AC_CONFIG_MACRO_DIR([m4])
@@ -77,6 +77,9 @@ changequote([,])dnl
 BUILD_FILEVERSION="${BUILD_FILEVERSION}${BUILD_REVISION}"
 AC_SUBST(BUILD_FILEVERSION)
 
+dnl Require pkg-config
+m4_ifndef([PKG_PROG_PKG_CONFIG], [m4_fatal(["Missing pkg-config macros"])])
+PKG_PROG_PKG_CONFIG
 
 # Architecture specific.
 have_w32_system=no
@@ -141,7 +144,7 @@ AH_VERBATIM([CONFIG_H_FIRST], [/* Check for Linux's /usr/include/features.h
 AC_C_INLINE
 
 # Checks for programs.
-AC_LIBTOOL_WIN32_DLL
+LT_INIT(win32-dll)
 LT_AC_PROG_RC
 AC_LIBTOOL_RC
 AC_PROG_LIBTOOL
@@ -212,7 +215,7 @@ if test "x$with_openssl" != "xno"; then
   AC_CHECK_HEADER(openssl/ssl.h, [
    AC_CHECK_LIB(rsaref, main, [SSLLIBS="-lrsaref"])
    AC_CHECK_LIB(crypto, main, [SSLLIBS="-lcrypto $SSLLIBS"], [], [$SSLLIBS])
-   AC_CHECK_LIB(ssl, SSL_library_init, with_openssl=yes, [], [$SSLLIBS])])
+   AC_CHECK_LIB(ssl, SSL_CTX_new, with_openssl=yes, [], [$SSLLIBS])])
   if test "x$with_openssl" != "xyes"; then
     CPPFLAGS="$OCPPFLAGS"
     LDFLAGS="$OLDFLAGS"
@@ -355,9 +358,23 @@ DBLINKED=0
 DBLIB=""
 
 AC_ARG_ENABLE(db, [AC_HELP_STRING([--disable-db], [disable Berkeley DB (default=try to detect DB)])],[enable_db=$enableval],[enable_db=yes])
+AC_ARG_ENABLE(lmdb, [AC_HELP_STRING([--enable-lmdb], [enable lmdb as cache DB instead of BerkeleyDB (default=disable)])],[enable_lmdb=$enableval],[enable_lmdb=no])
 
+if test "x$enable_lmdb" = "xyes"; then
+   AC_CHECK_HEADER(lmdb.h, [LMDB="yes"])
+   if test "x$LMDB" = "x"; then
+     AC_MSG_WARN(lmdb.h not found cache support disabled)
+   else
+     AC_CHECK_LIB(lmdb, mdb_env_create, [DBLIB="-llmdb"; DBLINKED=1], [])
+     if test "$DBLINKED" = 1; then
+       AC_DEFINE([LMDB], [1], [Enable support for lmdb cache])
+       enable_db="no"
+     else
+       AC_MSG_WARN(liblmdb not found cache support disabled)
+     fi
+   fi
 dnl Check for a presence of Berkeley DB header
-if test "x$enable_db" != "xyes"; then
+elif test "x$enable_db" != "xyes"; then
    AC_MSG_WARN(cache support disabled)
 else
    AC_CHECK_HEADER(db.h, [DB_HEADER=1], [DB_HEADER=0])
@@ -741,8 +758,7 @@ AC_SUBST(VERSION)
 
 # Further checks.
 
-AC_CONFIG_FILES(libetpan-config
-		Makefile
+AC_CONFIG_FILES(Makefile
 		build-windows/Makefile
                 include/Makefile
                 src/Makefile
@@ -780,7 +796,8 @@ AC_CONFIG_FILES(libetpan-config
 		src/engine/Makefile
 		src/versioninfo.rc
 		doc/Makefile
-		tests/Makefile)
+		tests/Makefile
+		libetpan.pc)
 
 # We collect all files which could potentially install public header
 # files via HEADERS.  Updating any of these files will trigger

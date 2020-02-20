@@ -1518,7 +1518,7 @@ int mailprivacy_spawn_and_wait(char * command, char * passphrase,
       close(fd_out);
       dup2(fd_err, 2);
       close(fd_err);
-
+      
 #if !TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
       //https://github.com/dinhviethoa/libetpan/issues/275
       //system() is not supported on iOS 11.
