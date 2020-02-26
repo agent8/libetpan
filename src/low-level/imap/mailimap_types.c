@@ -413,7 +413,9 @@ mailimap_body_fld_dsp_new(char * dsp_type,
     struct mailimap_body_fld_param * dsp_attributes)
 {
   struct mailimap_body_fld_dsp * body_fld_dsp;
-
+  if (dsp_type == NULL) {
+    return NULL;
+  }
   body_fld_dsp = malloc(sizeof(* body_fld_dsp));
   if (body_fld_dsp == NULL)
     return NULL;
