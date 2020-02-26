@@ -2546,6 +2546,9 @@ mailimap_body_fld_dsp_parse(mailstream * fd, MMAPString * buffer, struct mailima
 	  while ((cur_token < buffer->len) && (*(buffer->str + cur_token) != ')')) {
 		  cur_token++;
 	  }
+    // Fix a NULL point exception
+    // default to inline which do not impact email parsing. Two cases get here: NOT ("" NIL) or ({digit+} NIL), such as (abc NIL)
+    name = mmap_string_new("inline")->str;
   }
 
   r = mailimap_space_parse(fd, buffer, &cur_token);
