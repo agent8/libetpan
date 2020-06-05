@@ -3061,6 +3061,17 @@ mailimap_single_body_fld_param_parse(mailstream * fd, MMAPString * buffer, struc
         goto free_name;
       }
     }
+    // Recover from parser error
+    char * tmp_char = buffer->str + cur_token;
+    while (* tmp_char != ' ' && * tmp_char != '"' && * tmp_char != ')' && * tmp_char != '\0') {
+      cur_token ++;
+      tmp_char = buffer->str + cur_token;
+    }
+    if (*tmp_char == '\0') {
+      res = MAILIMAP_ERROR_PARSE;
+      goto free_value;
+    }
+    // End of Recover.
   }
   
   param = mailimap_single_body_fld_param_new(name, value);
@@ -7308,8 +7319,20 @@ mailimap_media_basic_parse(mailstream * fd, MMAPString * buffer, struct mailimap
   if (r == MAILIMAP_ERROR_PARSE) {
     r = mailimap_string_parse(fd, buffer, parser_ctx, &cur_token, &basic_type, NULL,
 			      progr_rate, progr_fun);
-    if (r == MAILIMAP_NO_ERROR)
+    if (r == MAILIMAP_NO_ERROR) {
+      // Recover from parser error
+      char * tmp_char = buffer->str + cur_token;
+      while (* tmp_char != ' ' && * tmp_char != '\0') {
+        cur_token ++;
+        tmp_char = buffer->str + cur_token;
+      }
+      if (*tmp_char == '\0') {
+        res = r;
+        goto free_basic_type;
+      }
+      // End of Recover
       type = MAILIMAP_MEDIA_BASIC_OTHER;
+    }
   }
   
   // workaround for mbox mail for mac
@@ -7333,10 +7356,7 @@ mailimap_media_basic_parse(mailstream * fd, MMAPString * buffer, struct mailimap
 
   r = mailimap_media_subtype_parse(fd, buffer, parser_ctx, &cur_token, &subtype,
 				   progr_rate, progr_fun);
-  if (r == MAILIMAP_ERROR_PARSE) {
-    // workaround for mbox mail for mac
-  }
-  else if (r != MAILIMAP_NO_ERROR) {
+  if (r != MAILIMAP_NO_ERROR) {
     res = r;
     goto free_basic_type;
   }
@@ -7444,8 +7464,26 @@ mailimap_media_subtype_parse(mailstream * fd, MMAPString * buffer, struct mailim
 			     size_t progr_rate,
 			     progress_function * progr_fun)
 {
-  return mailimap_string_parse(fd, buffer, parser_ctx, indx, result, NULL,
+  int r = mailimap_string_parse(fd, buffer, parser_ctx, indx, result, NULL,
 			       progr_rate, progr_fun);
+  // Recover from parser error
+  if (r == MAILIMAP_NO_ERROR) {
+    int cur_token = *indx;
+    char * tmp_char = buffer->str + cur_token;
+    while (* tmp_char != ' ' && * tmp_char != '\0') {
+      cur_token ++;
+      tmp_char = buffer->str + cur_token;
+    }
+    if (*tmp_char == '\0') {
+      if(*result != NULL) {
+        mailimap_string_free(*result);
+      }
+      return MAILIMAP_ERROR_PARSE;
+    } else {
+      *indx = cur_token;
+    }
+  }
+  return r;
 }
 
 /*
@@ -7574,17 +7612,85 @@ mailimap_message_data_parse_progress(mailstream * fd, MMAPString * buffer, struc
     r = mailimap_msg_att_parse_progress(fd, buffer, parser_ctx, &cur_token, &msg_att,
 			       progr_rate, progr_fun, body_progr_fun, items_progr_fun, context, msg_att_handler, msg_att_context);
     if (r != MAILIMAP_NO_ERROR) {
+      // Recover from parser error
       char * tmp_char = buffer->str + cur_token;
-      while (* tmp_char != '\r' && * tmp_char != '\0') {
+      int step = 0;
+      int lastCaccolade = cur_token;
+      while (* tmp_char != '\0') {
+        if (step == 0) {
+          if (* tmp_char == '{') {
+            step = 1;
+            lastCaccolade = cur_token;
+          }
+        } else if (step == 1) {
+//          r = mailimap_oaccolade_parse(fd, buffer,parser_ctx, &cur_token);
+//          r = mailimap_caccolade_parse(fd, buffer,parser_ctx, &cur_token);
+          uint32_t number;
+          r = mailimap_number_parse(fd, buffer, &cur_token, &number);
+          if (r == MAILIMAP_NO_ERROR) {
+            step = 2;
+          } else {
+            step = 0;
+          }
+          tmp_char = buffer->str + cur_token;
+          continue;
+        } else if (step == 2) {
+         if (* tmp_char == '}') {
+           step = 3;
+           cur_token = lastCaccolade;
+           continue;
+         } else {
+           step = 0;
+         }
+        } else if (step == 3) {
+          // Read the string and then drop it
+          char * string;
+          size_t len;
+          r = mailimap_literal_parse_progress(fd, buffer, parser_ctx, &cur_token, &string, &len,
+          progr_rate, progr_fun, body_progr_fun, items_progr_fun, context, msg_att_handler, msg_att_context);
+          if (string != NULL) {
+            mailimap_string_free(string);
+          }
+          if (r == MAILIMAP_NO_ERROR) {
+            step = 4;
+            continue;
+          } else {
+            step = 0;
+          }
+        } else if (step == 4) {
+          r = mailimap_token_case_insensitive_parse(fd, buffer, &cur_token,
+                      ")");
+          if (r == MAILIMAP_NO_ERROR) {
+            step = 5;
+            break;
+          } else {//Not sure if this is necessary
+            r = mailimap_token_case_insensitive_parse(fd, buffer, &cur_token,
+                                 "\r\n)");
+            if (r == MAILIMAP_NO_ERROR) {
+              step = 5;
+              break;
+            } else {
+              step = 0;
+            }
+          }
+        } //end if
         cur_token ++;
         tmp_char = buffer->str + cur_token;
-      }
-      if (*tmp_char != '\r' || *(tmp_char+1) != '\n') {
-        res = r;
+      } //end of while
+      if (step == 0) {
+        // Expected error 1
+        cur_token -= 2;
+        r = MAILIMAP_NO_ERROR;
+        type = MAILIMAP_MESSAGE_DATA_ERROR;
+      } else if (step == 5) {
+        // Expected error 2
+        r = MAILIMAP_NO_ERROR;
+        type = MAILIMAP_MESSAGE_DATA_ERROR;
+      } else {
+        // Unknow error
+        r = MAILIMAP_ERROR_PARSE;
         goto err;
       }
-      r = MAILIMAP_NO_ERROR;
-      type = MAILIMAP_MESSAGE_DATA_ERROR;
     } else {
       type = MAILIMAP_MESSAGE_DATA_FETCH;
     }
