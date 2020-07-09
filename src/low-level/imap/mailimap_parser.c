@@ -7470,7 +7470,7 @@ mailimap_media_subtype_parse(mailstream * fd, MMAPString * buffer, struct mailim
   if (r == MAILIMAP_NO_ERROR) {
     int cur_token = *indx;
     char * tmp_char = buffer->str + cur_token;
-    while (* tmp_char != ' ' && * tmp_char != '\0') {
+    while (* tmp_char != ' ' && * tmp_char != ')' && * tmp_char != '\0') {
       cur_token ++;
       tmp_char = buffer->str + cur_token;
     }
