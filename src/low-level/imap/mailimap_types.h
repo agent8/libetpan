@@ -1572,7 +1572,8 @@ enum {
   MAILIMAP_STATUS_ATT_HIGHESTMODSEQ, /* when requesting the highest
                                         mod-sequence value of all messages in
                                         the mailbox */
-  MAILIMAP_STATUS_ATT_EXTENSION
+  MAILIMAP_STATUS_ATT_EXTENSION,
+  MAILIMAP_STATUS_ATT_BLOCKSENDER /*Edison OnMail Only*/
 };
 
 /*
