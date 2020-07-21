@@ -1481,7 +1481,7 @@ int mailimf_quoted_string_parse(const char * message, size_t length,
 
 LIBETPAN_EXPORT
 int mailimf_fws_quoted_string_parse(const char * message, size_t length,
-				    size_t * indx, char ** result)
+				    size_t * indx, char ** result,  int * p_missing_closing_quote)
 {
   size_t cur_token;
   MMAPString * gstr;
@@ -1521,8 +1521,8 @@ int mailimf_fws_quoted_string_parse(const char * message, size_t length,
     r = mailimf_fws_parse(message, length, &cur_token);
     if (r == MAILIMF_NO_ERROR) {
       if (mmap_string_append_c(gstr, ' ') == NULL) {
-	res = MAILIMF_ERROR_MEMORY;
-	goto free_gstr;
+        res = MAILIMF_ERROR_MEMORY;
+        goto free_gstr;
       }
     }
     else if (r != MAILIMF_ERROR_PARSE) {
@@ -1533,8 +1533,8 @@ int mailimf_fws_quoted_string_parse(const char * message, size_t length,
     r = mailimf_qcontent_parse(message, length, &cur_token, &ch);
     if (r == MAILIMF_NO_ERROR) {
       if (mmap_string_append_c(gstr, ch) == NULL) {
-	res = MAILIMF_ERROR_MEMORY;
-	goto free_gstr;
+        res = MAILIMF_ERROR_MEMORY;
+        goto free_gstr;
       }
     }
     else if (r == MAILIMF_ERROR_PARSE)
@@ -1547,8 +1547,10 @@ int mailimf_fws_quoted_string_parse(const char * message, size_t length,
 
   r = mailimf_dquote_parse(message, length, &cur_token);
   if (r != MAILIMF_NO_ERROR) {
-    res = r;
-    goto free_gstr;
+//    res = r;
+//    goto free_gstr;
+//  Weicheng: Some email address has only a prefix dquote
+    * p_missing_closing_quote = 1;
   }
 
 #if 0
@@ -1619,7 +1621,7 @@ int mailimf_fws_word_parse(const char * message, size_t length,
   r = mailimf_fws_atom_for_word_parse(message, length, &cur_token, &word, &missing_closing_quote);
 
   if (r == MAILIMF_ERROR_PARSE)
-    r = mailimf_fws_quoted_string_parse(message, length, &cur_token, &word);
+    r = mailimf_fws_quoted_string_parse(message, length, &cur_token, &word, &missing_closing_quote);
 
   if (r != MAILIMF_NO_ERROR)
     return r;
@@ -2982,7 +2984,7 @@ int mailimf_mailbox_parse(const char * message, size_t length,
 
   * result = mailbox;
   * indx = cur_token;
-
+  // printf("message:%s\nname:%s\nemail:%s\n",message, display_name, addr_spec);
   return MAILIMF_NO_ERROR;
 
  free:
@@ -3028,7 +3030,9 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
     }
     int state = 0;
     int index = 0;
-    int hasAngle = 1;
+    int hasAngle = 0;
+    int splitStart = 0;
+    int splitEnd = 0;
     size_t count = strlen(display_name);
     while (state != -1 && state != 5 && index < count){
       char c = display_name[index];
@@ -3041,9 +3045,13 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
         case '<':
           if (state == 0) {
             state = 1;
+          } else if (state == 2) {
+            state = 10;
           } else {
             state = -1;
           }
+          splitStart = index;
+          hasAngle = 1;
           break;
         case '>':
           if (state == 4) {
@@ -3051,40 +3059,40 @@ static int mailimf_name_addr_parse(const char * message, size_t length,
           } else {
             state = -1;
           }
+          splitEnd = index;
           break;
         case '@':
-          if (state == 2) {
+          if (state == 2 || state == 11) {
             state = 3;
           } else {
             state = -1;
           }
           break;
         default:
-          if (state == 0) {
-            if (c != '@') {
-              state = 2;
-              hasAngle = 0;
-            } else {
-              state = -1;
-            }
-          } else if (state == 1) {
-            if (c != '@') {
-              state = 2;
-            } else {
-              state = -1;
-            }
+          if (state == 0 || state == 1) {
+            state = 2;
           } else if (state == 3) {
-            if (c != '@') {
-              state = 4;
-            } else {
-              state = -1;
-            }
+            state = 4;
+          } else if (state == 10) {
+            state = 11;
+          } else if (state == 5) {
+            state = -1;
           }
           break;
       }
       index++;
     }
-    if (state == 5 || (!hasAngle && state == 4)) {
+    if (state == 5 && splitStart > 0) {
+      // display-name <abc@def>
+      * pangle_addr = strndup(display_name + splitStart + 1, splitEnd - splitStart - 1);
+      while(display_name[splitStart-1] == ' ' && splitStart > 2){
+        splitStart--;
+      }
+      char * display_name_fixed = strndup(display_name, splitStart);
+      mailimf_display_name_free(display_name);
+      display_name = display_name_fixed;
+    } else if (state == 5 || (!hasAngle && state == 4)) {
+      // abc@def or <abc@def>
       //It is may be an angle-addr. It will be handled by mailimf_angle_addr_parse
       res = r;
       goto free_display_name;

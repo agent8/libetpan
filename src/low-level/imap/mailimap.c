@@ -2024,7 +2024,7 @@ int mailimap_rename(mailimap * session,
   if (r != MAILIMAP_NO_ERROR)
 	return r;
 
-  if (!mailimap_crlf_send(session->imap_stream))
+  r = mailimap_crlf_send(session->imap_stream);
   if (r != MAILIMAP_NO_ERROR)
 	return r;
 
