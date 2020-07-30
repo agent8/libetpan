@@ -463,7 +463,7 @@ int mailimap_select_condstore(mailimap * session, const char * mb, uint64_t * p_
 }
 
 int mailimap_select_condstore_optional(mailimap * session, const char * mb,
-  int condstore, uint64_t * p_mod_sequence_value)
+  int flag, uint64_t * p_mod_sequence_value)
 {
   struct mailimap_response * response;
   int r;
@@ -479,7 +479,7 @@ int mailimap_select_condstore_optional(mailimap * session, const char * mb,
   if (r != MAILIMAP_NO_ERROR)
     return r;
 
-  r = mailimap_select_send(session->imap_stream, mb, condstore);
+  r = mailimap_select_send(session->imap_stream, mb, flag);
   if (r != MAILIMAP_NO_ERROR)
     return r;
   
