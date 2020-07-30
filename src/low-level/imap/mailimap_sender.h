@@ -134,7 +134,7 @@ int mailimap_search_key_literalplus_send(mailstream * fd,
                                          struct mailimap_search_key * key);
 
 int
-mailimap_select_send(mailstream * fd, const char * mb, int condstore);
+mailimap_select_send(mailstream * fd, const char * mb, int flag);
 
 int
 mailimap_status_send(mailstream * fd, const char * mb,

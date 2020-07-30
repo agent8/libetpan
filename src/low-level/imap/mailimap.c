@@ -2096,6 +2096,13 @@ mailimap_select(mailimap * session, const char * mb)
 
 LIBETPAN_EXPORT
 int
+mailimap_select_with_blocksender(mailimap * session, const char * mb) {
+  uint64_t dummy;
+  return mailimap_select_condstore_optional(session, mb, 2, &dummy);
+}
+
+LIBETPAN_EXPORT
+int
 mailimap_custom_command(mailimap * session, const char * command)
 {
   int r;

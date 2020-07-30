@@ -597,6 +597,23 @@ int
 mailimap_select(mailimap * session, const char * mb);
 
 /*
+   mailimap_select_with_blocksender()
+
+   This function will select a given mailbox so that messages in the
+   mailbox can be accessed.
+   
+   @param session          IMAP session
+   @param mb  This is the name of the mailbox to select.
+
+   @return the return code is one of MAILIMAP_ERROR_XXX or
+     MAILIMAP_NO_ERROR codes
+*/
+
+LIBETPAN_EXPORT
+int
+mailimap_select_with_blocksender(mailimap * session, const char * mb);
+
+/*
  mailimap_custom_command()
  
  @param session   IMAP session
