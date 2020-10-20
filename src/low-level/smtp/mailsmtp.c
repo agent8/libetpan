@@ -308,6 +308,13 @@ int mailsmtp_helo_with_ip(mailsmtp * session, int useip)
     //return r;
   }
 
+  for (char *p = hostname; *p; p++) {
+    if (*p < 33 || *p > 126) {
+      snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
+      break;
+    }
+  }
+
   snprintf(command, SMTP_STRING_SIZE, "HELO %s\r\n", hostname);
   r = send_command(session, command);
   if (r == -1)
@@ -713,6 +720,13 @@ int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip)
   if (r != MAILSMTP_NO_ERROR) {
     snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
     //return r;
+  }
+
+  for (char *p = hostname; *p; p++) {
+    if (*p < 33 || *p > 126) {
+      snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
+      break;
+    }
   }
 
   snprintf(command, SMTP_STRING_SIZE, "EHLO %s\r\n", hostname);
