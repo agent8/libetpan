@@ -7338,7 +7338,7 @@ mailimap_media_basic_parse(mailstream * fd, MMAPString * buffer, struct mailimap
         limit--;
       }
       if (*tmp_char == '\0' || * tmp_char == '\n' || limit <= 0) {
-        res = r;
+        res = MAILIMAP_ERROR_PARSE;
         goto free_basic_type;
       }
       // End of Recover
@@ -7478,6 +7478,7 @@ mailimap_media_subtype_parse(mailstream * fd, MMAPString * buffer, struct mailim
   int r = mailimap_string_parse(fd, buffer, parser_ctx, indx, result, NULL,
 			       progr_rate, progr_fun);
   // Recover from parser error
+  const int original_indx = *indx;
   if (r == MAILIMAP_NO_ERROR) {
     int cur_token = *indx;
     char * tmp_char = buffer->str + cur_token;
@@ -7491,6 +7492,7 @@ mailimap_media_subtype_parse(mailstream * fd, MMAPString * buffer, struct mailim
       if(*result != NULL) {
         mailimap_string_free(*result);
       }
+      *indx = original_indx;
       return MAILIMAP_ERROR_PARSE;
     } else {
       *indx = cur_token;
