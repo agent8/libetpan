@@ -7698,7 +7698,7 @@ mailimap_message_data_parse_progress(mailstream * fd, MMAPString * buffer, struc
         type = MAILIMAP_MESSAGE_DATA_ERROR;
       } else {
         // Unknow error
-        r = MAILIMAP_ERROR_PARSE;
+        res = MAILIMAP_ERROR_PARSE;
         goto err;
       }
     } else {
