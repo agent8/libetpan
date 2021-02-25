@@ -2953,7 +2953,7 @@ mailimap_section_text_send(mailstream * fd,
 */
 
 int
-mailimap_select_send(mailstream * fd, const char * mb, int condstore)
+mailimap_select_send(mailstream * fd, const char * mb, int flag)
 {
   int r;
   
@@ -2966,8 +2966,8 @@ mailimap_select_send(mailstream * fd, const char * mb, int condstore)
   r = mailimap_mailbox_send(fd, mb);
   if (r != MAILIMAP_NO_ERROR)
     return r;
-
-	if (condstore) {
+  
+  if (flag) {
 		r = mailimap_space_send(fd);
 		if (r != MAILIMAP_NO_ERROR)
 			return r;
@@ -2975,8 +2975,13 @@ mailimap_select_send(mailstream * fd, const char * mb, int condstore)
 		r = mailimap_oparenth_send(fd);
 		if (r != MAILIMAP_NO_ERROR)
 			return r;
-
-		r = mailimap_token_send(fd, "CONDSTORE");
+    if (flag == 1) {
+      r = mailimap_token_send(fd, "CONDSTORE");
+    } else if (flag == 2) {
+      r = mailimap_token_send(fd, "BLOCKSENDER");
+    } else {
+      r = MAILIMAP_ERROR_SELECT;
+    }
 		if (r != MAILIMAP_NO_ERROR)
 			return r;
 
@@ -3326,13 +3331,13 @@ mailimap_send_custom_command(mailstream *fd, const char * command)
   int r;
   
   r = mailimap_token_send(fd, command);
-  if (r != MAILIMAP_NO_ERROR)
+  if (r != MAILIMAP_NO_ERROR) {
     return r;
-  
-  r = mailimap_space_send(fd);
-  if (r != MAILIMAP_NO_ERROR)
-    return r;
-  
+  }
+// Weicheng: It SHOULD NOT send a space at the end of line.
+//  r = mailimap_space_send(fd);
+//  if (r != MAILIMAP_NO_ERROR)
+//    return r;
   return MAILIMAP_NO_ERROR;
 }
 

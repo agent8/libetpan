@@ -1367,6 +1367,15 @@ int mailimf_mailbox_list_write_driver(int (* do_write)(void *, const char *, siz
     struct mailimf_mailbox * mb;
 
     mb = clist_content(cur);
+    
+    //To compatible the below case:
+    //From: <52tspQ2l5SJ___5688@xfkgp.engagearhaus.com>REGISTRAR
+    //mailcore2 will genereate 2 mailboxes:
+    //#1: display name: NULL, email address:52tspQ2l5SJ___5688@xfkgp.engagearhaus.com
+    //#2: display name: REGISTRAR, email address: NULL
+    if (mb->mb_addr_spec == NULL) {
+      continue;
+    }
 
     if (!first) {
       r = mailimf_string_write_driver(do_write, data, col, ", ", 2);

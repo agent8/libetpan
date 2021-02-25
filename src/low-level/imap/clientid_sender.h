@@ -1,7 +1,7 @@
 /*
  * libEtPan! -- a mail stuff library
  *
- * Copyright (C) 2001, 2013 - DINH Viet Hoa
+ * Copyright (C) 2018, 2019 - LinuxMagic
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,22 +29,21 @@
  * SUCH DAMAGE.
  */
 
-#ifndef CONDSTORE_PRIVATE_H
+#ifndef CLIENTID_SENDER_H
 
-#define CONDSTORE_PRIVATE_H
+#define CLIENTID_SENDER_H
 
-int mailimap_examine_condstore_optional(mailimap * session, const char * mb,
-  int condstore, uint64_t * p_mod_sequence_value);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int mailimap_select_condstore_optional(mailimap * session, const char * mb,
-	int flag, uint64_t * p_mod_sequence_value);
+#include "mailstream.h"
 
-int mailimap_store_unchangedsince_optional(mailimap * session,
-	struct mailimap_set * set, int use_unchangedsince, uint64_t mod_sequence_valzer,
-  struct mailimap_store_att_flags * store_att_flags);
+int mailimap_clientid_send(mailstream * fd,
+               const char * type, const char * clientid);
 
-int mailimap_uid_store_unchangedsince_optional(mailimap * session,
-	struct mailimap_set * set, int use_unchangedsince, uint64_t mod_sequence_valzer,
-  struct mailimap_store_att_flags * store_att_flags);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

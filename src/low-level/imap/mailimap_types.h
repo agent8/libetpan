@@ -1572,7 +1572,8 @@ enum {
   MAILIMAP_STATUS_ATT_HIGHESTMODSEQ, /* when requesting the highest
                                         mod-sequence value of all messages in
                                         the mailbox */
-  MAILIMAP_STATUS_ATT_EXTENSION
+  MAILIMAP_STATUS_ATT_EXTENSION,
+  MAILIMAP_STATUS_ATT_BLOCKSENDER /*Edison OnMail Only*/
 };
 
 /*
@@ -3570,7 +3571,8 @@ enum {
   MAILIMAP_ERROR_SASL,
   MAILIMAP_ERROR_SSL,
   MAILIMAP_ERROR_NEEDS_MORE_DATA,
-  MAILIMAP_ERROR_CUSTOM_COMMAND
+  MAILIMAP_ERROR_CUSTOM_COMMAND,
+  MAILIMAP_ERROR_CLIENTID,
 };
 
 /* information about parser context */

@@ -1,7 +1,7 @@
 /*
  * libEtPan! -- a mail stuff library
  *
- * Copyright (C) 2001, 2013 - DINH Viet Hoa
+ * Copyright (C) 2018, 2019 - LinuxMagic
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,22 +29,42 @@
  * SUCH DAMAGE.
  */
 
-#ifndef CONDSTORE_PRIVATE_H
-
-#define CONDSTORE_PRIVATE_H
-
-int mailimap_examine_condstore_optional(mailimap * session, const char * mb,
-  int condstore, uint64_t * p_mod_sequence_value);
-
-int mailimap_select_condstore_optional(mailimap * session, const char * mb,
-	int flag, uint64_t * p_mod_sequence_value);
-
-int mailimap_store_unchangedsince_optional(mailimap * session,
-	struct mailimap_set * set, int use_unchangedsince, uint64_t mod_sequence_valzer,
-  struct mailimap_store_att_flags * store_att_flags);
-
-int mailimap_uid_store_unchangedsince_optional(mailimap * session,
-	struct mailimap_set * set, int use_unchangedsince, uint64_t mod_sequence_valzer,
-  struct mailimap_store_att_flags * store_att_flags);
-
+#ifdef HAVE_CONFIG_H
+#	include <config.h>
 #endif
+
+#include "mailstream.h"
+#include "mailimap_sender.h"
+#include "clientid_sender.h"
+
+/*
+=>   clientid       = "CLIENTID" SP type SP clientid
+*/
+
+int mailimap_clientid_send(mailstream * fd,
+               const char * type, const char * clientid)
+{
+  int r;
+
+  r = mailimap_token_send(fd, "CLIENTID");
+  if (r != MAILIMAP_NO_ERROR)
+    return r;
+
+  r = mailimap_space_send(fd);
+  if (r != MAILIMAP_NO_ERROR)
+    return r;
+
+  r = mailimap_astring_send(fd, type);
+  if (r != MAILIMAP_NO_ERROR)
+    return r;
+
+  r = mailimap_space_send(fd);
+  if (r != MAILIMAP_NO_ERROR)
+    return r;
+
+  r = mailimap_astring_send(fd, clientid);
+  if (r != MAILIMAP_NO_ERROR)
+    return r;
+
+  return MAILIMAP_NO_ERROR;
+}

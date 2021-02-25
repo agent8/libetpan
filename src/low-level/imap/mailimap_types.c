@@ -413,7 +413,9 @@ mailimap_body_fld_dsp_new(char * dsp_type,
     struct mailimap_body_fld_param * dsp_attributes)
 {
   struct mailimap_body_fld_dsp * body_fld_dsp;
-
+  if (dsp_type == NULL) {
+    return NULL;
+  }
   body_fld_dsp = malloc(sizeof(* body_fld_dsp));
   if (body_fld_dsp == NULL)
     return NULL;
@@ -1201,10 +1203,10 @@ mailimap_flag_list_new(clist * fl_list)
 LIBETPAN_EXPORT
 void mailimap_flag_list_free(struct mailimap_flag_list * flag_list)
 {
-	if (flag_list->fl_list) {
-		clist_foreach(flag_list->fl_list, (clist_func) mailimap_flag_free, NULL);
-		clist_free(flag_list->fl_list);
-	}
+  if (flag_list->fl_list) {
+    clist_foreach(flag_list->fl_list, (clist_func) mailimap_flag_free, NULL);
+    clist_free(flag_list->fl_list);
+  }
   free(flag_list);
 }
 

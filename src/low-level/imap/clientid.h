@@ -1,7 +1,7 @@
 /*
  * libEtPan! -- a mail stuff library
  *
- * Copyright (C) 2001, 2013 - DINH Viet Hoa
+ * Copyright (C) 2018, 2019 - LinuxMagic
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,22 +29,38 @@
  * SUCH DAMAGE.
  */
 
-#ifndef CONDSTORE_PRIVATE_H
+#ifndef CLIENTID_H
 
-#define CONDSTORE_PRIVATE_H
+#define CLIENTID_H
 
-int mailimap_examine_condstore_optional(mailimap * session, const char * mb,
-  int condstore, uint64_t * p_mod_sequence_value);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int mailimap_select_condstore_optional(mailimap * session, const char * mb,
-	int flag, uint64_t * p_mod_sequence_value);
+#include "mailimap.h"
 
-int mailimap_store_unchangedsince_optional(mailimap * session,
-	struct mailimap_set * set, int use_unchangedsince, uint64_t mod_sequence_valzer,
-  struct mailimap_store_att_flags * store_att_flags);
+/*
+   mailimap_clientid()
 
-int mailimap_uid_store_unchangedsince_optional(mailimap * session,
-	struct mailimap_set * set, int use_unchangedsince, uint64_t mod_sequence_valzer,
-  struct mailimap_store_att_flags * store_att_flags);
+   This function will perform the clientid command.
+
+   @param session   IMAP session
+   @param type      the clientid type
+   @param clientid  the client identifier
+
+   @return the return code is one of MAILIMAP_ERROR_XXX or
+    MAILIMAP_NO_ERROR codes
+*/
+
+LIBETPAN_EXPORT
+int mailimap_clientid(mailimap * session,
+    const char * type, const char * clientid);
+
+LIBETPAN_EXPORT
+int mailimap_has_clientid(mailimap * session);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
