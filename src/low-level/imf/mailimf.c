@@ -66,8 +66,22 @@
 #endif
 
 
+#ifdef _MSC_VER
+static char  *strndup(const char *str, size_t len) {
+    if (str == NULL) {
+        return NULL;
+    }
+    size_t length = strlen(str);
+    size_t size = min(len, length);
+    char * buf = (char *)malloc(size + 1);
+    if (buf) {
+        memcpy(buf, str, size);
+        buf[size] = 0;
+    }
+    return buf;
+}
 
-
+#endif
 
 
 

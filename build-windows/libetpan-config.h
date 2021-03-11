@@ -88,11 +88,14 @@
 #endif
 #define MAIL_DIR_SEPARATOR '/'
 #define MAIL_DIR_SEPARATOR_S "/"
+// need libetpan static library, close Dynamic library define
 #ifdef _MSC_VER
 #	ifdef LIBETPAN_DLL
-#		define LIBETPAN_EXPORT __declspec(dllexport)
+#		//define LIBETPAN_EXPORT __declspec(dllexport)
+		#define LIBETPAN_EXPORT 
 #	else
-#		define LIBETPAN_EXPORT __declspec(dllimport)
+#		//define LIBETPAN_EXPORT __declspec(dllimport)
+		#define LIBETPAN_EXPORT
 #   endif
 #else
 #	define LIBETPAN_EXPORT

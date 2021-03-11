@@ -15,6 +15,11 @@
 project.xcworkspace/
 xcuserdata/
 
+/third-party/lib/.exp
+/third-party/lib/.pdb
+/third-party/lib64/.exp
+/third-party/lib64/.pdb
+/build-windows/.vs
 /build-mac/autogen-result.md5
 /build-mac/build
 /build-mac/include
