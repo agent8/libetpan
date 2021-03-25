@@ -103,7 +103,8 @@
       <DisableSpecificWarnings>4018;4102;4022;4047;4244;4996;4267;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ForcedIncludeFiles>StdAfx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PrecompiledHeaderFile />
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalOptions>/DLL %(AdditionalOptions)</AdditionalOptions>
@@ -166,7 +167,8 @@
       <DisableSpecificWarnings>4018;4102;4022;4047;4244;4996;4267;;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ForcedIncludeFiles>../StdAfx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PrecompiledHeaderFile />
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalOptions>/DLL %(AdditionalOptions)</AdditionalOptions>
