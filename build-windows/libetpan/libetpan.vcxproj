@@ -74,6 +74,7 @@
     <LibraryPath>C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.17763.0\ucrt\x86;$(LibraryPath)</LibraryPath>
     <TargetExt>.lib</TargetExt>
     <IntDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</IntDir>
+    <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -84,6 +85,7 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.lib</TargetExt>
     <IntDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</IntDir>
+    <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -93,7 +95,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../src/data-types;../../src/driver;../../src/driver/interface;../../src/driver/tools;../../src/low-level/feed;../../src/low-level/imap;../../src/low-level/imf;../../src/low-level/maildir;../../src/low-level/mbox;../../src/low-level/mh;../../src/low-level/mime;../../src/low-level/nntp;../../src/low-level/pop3;../../src/low-level/smtp;../../src/windows;../../src/main;..;../../src/driver/implementation/pop3;../../../mailcore2/Externals-win/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\..\src\data-types;$(ProjectDir)..\..\src\driver\interface;$(ProjectDir)..\..\src\driver\tools;$(ProjectDir)..\..\src\driver\implementation\pop3;$(ProjectDir)..\..\src\low-level\feed;$(ProjectDir)..\..\src\low-level\imap;$(ProjectDir)..\..\src\low-level\imf;$(ProjectDir)..\..\src\low-level\maildir;$(ProjectDir)..\..\src\low-level\mbox;$(ProjectDir)..\..\src\low-level\mh;$(ProjectDir)..\..\src\low-level\mime;$(ProjectDir)..\..\src\low-level\nntp;$(ProjectDir)..\..\src\low-level\pop3;$(ProjectDir)..\..\src\low-level\smtp;$(ProjectDir)..\..\src\windows;$(ProjectDir)..\..\src\main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_ZLIB;USE_SASL;USE_SSL;WIN32;_WINDOWS;LIBETPAN_DLL;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -158,7 +160,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>../../src/data-types;../../src/driver;../../src/driver/interface;../../src/driver/tools;../../src/low-level/feed;../../src/low-level/imap;../../src/low-level/imf;../../src/low-level/maildir;../../src/low-level/mbox;../../src/low-level/mh;../../src/low-level/mime;../../src/low-level/nntp;../../src/low-level/pop3;../../src/low-level/smtp;../../src/windows;../../src/main;..;../include;../../src/driver/implementation/pop3;../../third-party/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\..\src\data-types;$(ProjectDir)..\..\src\driver\interface;$(ProjectDir)..\..\src\driver\tools;$(ProjectDir)..\..\src\driver\implementation\pop3;$(ProjectDir)..\..\src\low-level\feed;$(ProjectDir)..\..\src\low-level\imap;$(ProjectDir)..\..\src\low-level\imf;$(ProjectDir)..\..\src\low-level\maildir;$(ProjectDir)..\..\src\low-level\mbox;$(ProjectDir)..\..\src\low-level\mh;$(ProjectDir)..\..\src\low-level\mime;$(ProjectDir)..\..\src\low-level\nntp;$(ProjectDir)..\..\src\low-level\pop3;$(ProjectDir)..\..\src\low-level\smtp;$(ProjectDir)..\..\src\windows;$(ProjectDir)..\..\src\main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_ZLIB;USE_SASL;USE_SSL;WIN32;_WINDOWS;_USRDLL;LIBETPAN_DLL;USE_SSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
