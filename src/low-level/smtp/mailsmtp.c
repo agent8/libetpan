@@ -296,6 +296,10 @@ int mailsmtp_helo(mailsmtp * session)
   return mailsmtp_helo_with_ip(session, 0);
 }
 
+#define HOSTNAME_PREFIX "edison."
+#define HOSTNAME_PREFIX_SIZE 7
+#define HOSTNAME_SIZE_INCLUDE_PREFIX (HOSTNAME_SIZE + HOSTNAME_PREFIX_SIZE)
+
 int mailsmtp_helo_with_ip(mailsmtp * session, int useip)
 {
   int r;
@@ -306,6 +310,11 @@ int mailsmtp_helo_with_ip(mailsmtp * session, int useip)
   if (r != MAILSMTP_NO_ERROR) {
     snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
     //return r;
+  } else {
+    char tmp_hostname[HOSTNAME_SIZE_INCLUDE_PREFIX] = {0};
+    snprintf(tmp_hostname, HOSTNAME_SIZE_INCLUDE_PREFIX, HOSTNAME_PREFIX);
+    strncat(tmp_hostname, hostname, HOSTNAME_SIZE);
+    strncpy(hostname, tmp_hostname, HOSTNAME_SIZE);
   }
 
   for (char *p = hostname; *p; p++) {
@@ -723,6 +732,11 @@ int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip)
   if (r != MAILSMTP_NO_ERROR) {
     snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
     //return r;
+  } else {
+    char tmp_hostname[HOSTNAME_SIZE_INCLUDE_PREFIX] = {0};
+    snprintf(tmp_hostname, HOSTNAME_SIZE_INCLUDE_PREFIX, HOSTNAME_PREFIX);
+    strncat(tmp_hostname, hostname, HOSTNAME_SIZE);
+    strncpy(hostname, tmp_hostname, HOSTNAME_SIZE);
   }
 
   for (char *p = hostname; *p; p++) {
