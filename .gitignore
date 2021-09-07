@@ -165,3 +165,6 @@ third-party
 /build-windows/libetpan.VC.db
 /.vs
 /build-windows/.vs/libetpan/v15
+GPATH
+GRTAGS
+GTAGS
