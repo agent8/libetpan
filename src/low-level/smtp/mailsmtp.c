@@ -296,6 +296,8 @@ int mailsmtp_helo(mailsmtp * session)
   return mailsmtp_helo_with_ip(session, 0);
 }
 
+static const char * HOSTNAME_PREFIX  = "edison.";
+
 int mailsmtp_helo_with_ip(mailsmtp * session, int useip)
 {
   int r;
@@ -315,18 +317,18 @@ int mailsmtp_helo_with_ip(mailsmtp * session, int useip)
     }
   }
 
-  snprintf(command, SMTP_STRING_SIZE, "HELO %s\r\n", hostname);
+  snprintf(command, SMTP_STRING_SIZE, "HELO %s%s\r\n", HOSTNAME_PREFIX, hostname);
   r = send_command(session, command);
   if (r == -1)
     return MAILSMTP_ERROR_STREAM;
   r = read_response(session);
-  
+
   switch (r) {
   case 250:
     session->esmtp = 0;
     session->auth = MAILSMTP_AUTH_NOT_CHECKED;
     return MAILSMTP_NO_ERROR;
-    
+
   case 504:
     return MAILSMTP_ERROR_NOT_IMPLEMENTED;
 
@@ -729,16 +731,16 @@ int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip)
     }
   }
 
-  snprintf(command, SMTP_STRING_SIZE, "EHLO %s\r\n", hostname);
+  snprintf(command, SMTP_STRING_SIZE, "EHLO %s%s\r\n", HOSTNAME_PREFIX, hostname);
   r = send_command(session, command);
   if (r == -1)
     return MAILSMTP_ERROR_STREAM;
   r = read_response(session);
-  
+
   switch (r) {
   case 250:
     return mailesmtp_parse_ehlo(session);
-    
+
   case 504:
     return MAILSMTP_ERROR_NOT_IMPLEMENTED;
 

@@ -22,26 +22,27 @@
     <ProjectGuid>{BA4DED3C-E56F-4484-BFC3-9C13E461A1BE}</ProjectGuid>
     <RootNamespace>libetpan</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -69,32 +70,39 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.17763.0\ucrt;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.17763.0\ucrt\x86;$(LibraryPath)</LibraryPath>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.17763.0\ucrt;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.17763.0\ucrt\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../src/data-types;../../src/driver;../../src/driver/interface;../../src/driver/tools;../../src/low-level/feed;../../src/low-level/imap;../../src/low-level/imf;../../src/low-level/maildir;../../src/low-level/mbox;../../src/low-level/mh;../../src/low-level/mime;../../src/low-level/nntp;../../src/low-level/pop3;../../src/low-level/smtp;../../src/windows;../../src/main;..;../include;../../src/driver/implementation/pop3;../../third-party/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAVE_ZLIB;USE_SASL;USE_SSL;WIN32;_WINDOWS;_USRDLL;LIBETPAN_DLL;USE_SSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>../../src/data-types;../../src/driver;../../src/driver/interface;../../src/driver/tools;../../src/low-level/feed;../../src/low-level/imap;../../src/low-level/imf;../../src/low-level/maildir;../../src/low-level/mbox;../../src/low-level/mh;../../src/low-level/mime;../../src/low-level/nntp;../../src/low-level/pop3;../../src/low-level/smtp;../../src/windows;../../src/main;..;../../src/driver/implementation/pop3;../../../mailcore2/Externals-win/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_ZLIB;USE_SASL;USE_SSL;WIN32;_WINDOWS;LIBETPAN_DLL;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
-      <DisableSpecificWarnings>4996; 4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <ForcedIncludeFiles>../StdAfx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <DisableSpecificWarnings>4018;4102;4022;4047;4244;4996;4267;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ForcedIncludeFiles>StdAfx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PrecompiledHeaderFile />
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalOptions>/DLL %(AdditionalOptions)</AdditionalOptions>
@@ -154,9 +162,10 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
       <CompileAs>CompileAsC</CompileAs>
-      <DisableSpecificWarnings>4996; 4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4018;4102;4022;4047;4244;4996;4267;;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ForcedIncludeFiles>../StdAfx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PrecompiledHeaderFile />
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalOptions>/DLL %(AdditionalOptions)</AdditionalOptions>
@@ -604,6 +613,7 @@ build_headers.bat
     <ClInclude Include="..\..\src\low-level\smtp\mailsmtp_ssl.h" />
     <ClInclude Include="..\..\src\low-level\smtp\mailsmtp_types.h" />
     <ClInclude Include="..\..\src\windows\win_etpan.h" />
+    <ClInclude Include="..\..\src\windows\win_init.h" />
     <ClInclude Include="..\libetpan-config.h" />
     <ClInclude Include="..\libetpan_version.h" />
     <ClInclude Include="..\StdAfx.h" />

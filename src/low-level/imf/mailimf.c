@@ -66,8 +66,22 @@
 #endif
 
 
+#ifdef _MSC_VER
+static char  *strndup(const char *str, size_t len) {
+    if (str == NULL) {
+        return NULL;
+    }
+    size_t length = strlen(str);
+    size_t size = min(len, length);
+    char * buf = (char *)malloc(size + 1);
+    if (buf) {
+        memcpy(buf, str, size);
+        buf[size] = 0;
+    }
+    return buf;
+}
 
-
+#endif
 
 
 
@@ -3391,6 +3405,15 @@ static int mailimf_addr_spec_parse(const char * message, size_t length,
 
   final = FALSE;
   while (1) {
+    r = mailimf_fws_parse(message, length, &end);
+    if ((r != MAILIMF_NO_ERROR) && (r != MAILIMF_ERROR_PARSE)) {
+      res = r;
+      goto err;
+    }
+    if (end >= length) {
+      break;
+    }
+
     switch (message[end]) {
     case '>':
     case ',':
@@ -3427,7 +3450,7 @@ static int mailimf_addr_spec_parse(const char * message, size_t length,
   src = message + cur_token;
   dest = addr_spec;
   for(i = 0 ; i < count ; i ++) {
-    if ((* src != ' ') && (* src != '\t')) {
+    if ((* src != ' ') && (* src != '\t') && (* src != '\r') && (* src != '\n')) {
       * dest = * src;
       dest ++;
     }
