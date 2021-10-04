@@ -604,5 +604,15 @@ struct sockaddr_storage {
 #define HIER_DELIMITER '/'
 #endif
 
+/*
+// https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html
+#if defined __GNUC__ &&  __GNUC__ > 6
+    #define GCC_FALLTHROUGH __attribute__((fallthrough));
+#else
+    #define GCC_FALLTHROUGH
+#endif
+*/
+#define GCC_FALLTHROUGH
+
 #endif /* CONFIG_H */
 

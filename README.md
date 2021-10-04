@@ -57,6 +57,45 @@ You can use flag --with-poll for using poll() instead of select() for checking c
 
 - See README and Visual Studio Solution in build-windows folder
 
+### Build on Android
+
+You need to install autoconf, automake and libtool.
+They can be installed using [brew](http://brew.sh/).
+```
+$ ./autogen.sh
+$ make
+```
+    
+- cd libetpan/build-android
+```
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/21.3.6528147 #Use ndk 21
+$ ./build.sh
+```
+
+- cd libetpan/build-android/dependencies/openssl
+```
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/21.3.6528147 #Use ndk 21
+$ ./build.sh
+```
+
+
+- cd libetpan/build-android/dependencies
+```
+$ ./download-cyrus-sasl.sh
+```
+
+- cd libetpan/build-android/dependencies/cyrus-sasl
+```
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/17.2.4988734 #Use ndk 17
+$ ./build.sh
+```
+
+- cd libetpan/build-android
+```
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/21.3.6528147 #Use ndk 21
+$ ./build.sh
+```
+
 ## More information
 
 See http://etpan.org/libetpan.html for more information and examples.
