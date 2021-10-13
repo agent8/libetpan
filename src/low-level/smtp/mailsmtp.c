@@ -303,18 +303,22 @@ int mailsmtp_helo_with_ip(mailsmtp * session, int useip)
   char command[SMTP_STRING_SIZE];
 
   r = get_hostname(session, useip, hostname, HOSTNAME_SIZE);
-  if (r != MAILSMTP_NO_ERROR) {
-    snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
-    //return r;
-  }
-
-  for (char *p = hostname; *p; p++) {
-    if (*p < 33 || *p > 126) {
-      snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
-      break;
+  if (r != MAILSMTP_NO_ERROR || hostname[0] == '[') {
+    snprintf(hostname, HOSTNAME_SIZE, "edison.localhost");
+  } else {
+    bool isValidHost = TRUE;
+    for (char *p = hostname; *p; p++) {
+      if ((*p < '-') || (*p > 'z')) {
+        isValidHost = FALSE;
+        break;
+      }
+    }
+    if (isValidHost) {
+      snprintf(hostname, HOSTNAME_SIZE, "edison.%s", hostname);
+    } else {
+      snprintf(hostname, HOSTNAME_SIZE, "edison.tech");
     }
   }
-
   snprintf(command, SMTP_STRING_SIZE, "HELO %s\r\n", hostname);
   r = send_command(session, command);
   if (r == -1)
