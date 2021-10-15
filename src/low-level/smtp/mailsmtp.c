@@ -291,34 +291,62 @@ static int get_hostname(mailsmtp * session, int useip, char * buf, int len)
 }
 
 
-int mailsmtp_helo(mailsmtp * session)
+int mailsmtp_helo(mailsmtp * session, const char * server_host_name)
 {
-  return mailsmtp_helo_with_ip(session, 0);
+  return mailsmtp_helo_with_ip(session, 0, server_host_name);
 }
 
-int mailsmtp_helo_with_ip(mailsmtp * session, int useip)
+// For onmail server, prefix "edison." to local_hostname
+static void adjust_hostname_for_onmail(char * local_hostname, int local_hostname_len, const char * server_host_name) {
+  if (!local_hostname || local_hostname_len < 1 || !server_host_name) {
+    return;
+  }
+
+  const char * onmail_keyword = "onmail.com";
+  if (!strstr(server_host_name, onmail_keyword)) {
+    // not onmail server, don't modify original local_hostname
+    return;
+  }
+
+  // onmail server
+  const char * edison_prifix = "edison.";
+  if ((strlen(local_hostname) + strlen(edison_prifix) + 1) > local_hostname_len) {
+    // the local_hostname buffer is not large enough
+    return;
+  }
+
+  char * tmp_local_hostname = strdup(local_hostname);
+  if (!tmp_local_hostname) {
+    return;
+  }
+
+  snprintf(local_hostname, local_hostname_len, "%s%s", edison_prifix, tmp_local_hostname);
+
+  free(tmp_local_hostname);
+  tmp_local_hostname = NULL;
+}
+
+int mailsmtp_helo_with_ip(mailsmtp * session, int useip, const char * server_host_name)
 {
   int r;
   char hostname[HOSTNAME_SIZE];
   char command[SMTP_STRING_SIZE];
 
   r = get_hostname(session, useip, hostname, HOSTNAME_SIZE);
-  if (r != MAILSMTP_NO_ERROR || hostname[0] == '[') {
-    snprintf(hostname, HOSTNAME_SIZE, "edison.localhost");
-  } else {
-    bool isValidHost = TRUE;
-    for (char *p = hostname; *p; p++) {
-      if ((*p < '-') || (*p > 'z')) {
-        isValidHost = FALSE;
-        break;
-      }
-    }
-    if (isValidHost) {
-      snprintf(hostname, HOSTNAME_SIZE, "edison.%s", hostname);
-    } else {
-      snprintf(hostname, HOSTNAME_SIZE, "edison.tech");
+  if (r != MAILSMTP_NO_ERROR) {
+    snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
+    //return r;
+  }
+
+  for (char *p = hostname; *p; p++) {
+    if (*p < 33 || *p > 126) {
+      snprintf(hostname, HOSTNAME_SIZE, "email.client.edison.tech");
+      break;
     }
   }
+
+  adjust_hostname_for_onmail(hostname, HOSTNAME_SIZE, server_host_name);
+
   snprintf(command, SMTP_STRING_SIZE, "HELO %s\r\n", hostname);
   r = send_command(session, command);
   if (r == -1)
@@ -709,12 +737,12 @@ int mailesmtp_parse_ehlo(mailsmtp * session)
 }
 
 
-int mailesmtp_ehlo(mailsmtp * session)
+int mailesmtp_ehlo(mailsmtp * session, const char * server_host_name)
 {
-  return mailesmtp_ehlo_with_ip(session, 0);
+  return mailesmtp_ehlo_with_ip(session, 0, server_host_name);
 }
 
-int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip)
+int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip, const char * server_host_name)
 {
   int r;
   char hostname[HOSTNAME_SIZE];
@@ -732,6 +760,8 @@ int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip)
       break;
     }
   }
+
+  adjust_hostname_for_onmail(hostname, HOSTNAME_SIZE, server_host_name);
 
   snprintf(command, SMTP_STRING_SIZE, "EHLO %s\r\n", hostname);
   r = send_command(session, command);
