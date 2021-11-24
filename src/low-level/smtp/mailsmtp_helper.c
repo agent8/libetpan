@@ -43,22 +43,22 @@
 #include "mail.h"
 
 LIBETPAN_EXPORT
-int mailsmtp_init(mailsmtp * session)
+int mailsmtp_init(mailsmtp * session, const char * server_host_name)
 {
-  return mailsmtp_init_with_ip(session, 0);
+  return mailsmtp_init_with_ip(session, 0, server_host_name);
 }
 
 LIBETPAN_EXPORT
-int mailsmtp_init_with_ip(mailsmtp * session, int useip)
+int mailsmtp_init_with_ip(mailsmtp * session, int useip, const char * server_host_name)
 {
   int r;
 
-  r = mailesmtp_ehlo_with_ip(session, useip);
+  r = mailesmtp_ehlo_with_ip(session, useip, server_host_name);
 
   if (r == MAILSMTP_NO_ERROR)
     return MAILSMTP_NO_ERROR;
 
-  r = mailsmtp_helo_with_ip(session, useip);
+  r = mailsmtp_helo_with_ip(session, useip, server_host_name);
   if (r == MAILSMTP_NO_ERROR)
     return MAILSMTP_NO_ERROR;
 

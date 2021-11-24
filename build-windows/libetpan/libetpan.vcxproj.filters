@@ -1229,6 +1229,9 @@
     <ClInclude Include="..\..\src\low-level\smtp\mailsmtp_types.h">
       <Filter>Source Files\low-level\smtp</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\windows\win_init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\build_headers.list">

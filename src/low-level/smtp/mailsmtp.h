@@ -86,10 +86,10 @@ int mailsmtp_auth_type(mailsmtp * session,
     const char * user, const char * pass, int type);
 
 LIBETPAN_EXPORT
-int mailsmtp_helo(mailsmtp * session);
+int mailsmtp_helo(mailsmtp * session, const char * server_host_name);
 
 LIBETPAN_EXPORT
-int mailsmtp_helo_with_ip(mailsmtp * session, int useip);
+int mailsmtp_helo_with_ip(mailsmtp * session, int useip, const char * server_host_name);
 
 LIBETPAN_EXPORT
 int mailsmtp_mail(mailsmtp * session, const char * from);
@@ -126,10 +126,10 @@ LIBETPAN_EXPORT
 int mailesmtp_lhlo(mailsmtp * session, const char *hostname);
 
 LIBETPAN_EXPORT
-int mailesmtp_ehlo(mailsmtp * session);
+int mailesmtp_ehlo(mailsmtp * session, const char * server_host_name);
 
 LIBETPAN_EXPORT
-int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip);
+int mailesmtp_ehlo_with_ip(mailsmtp * session, int useip, const char * server_host_name);
 
 LIBETPAN_EXPORT
 int mailesmtp_mail(mailsmtp * session,

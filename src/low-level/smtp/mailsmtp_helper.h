@@ -47,10 +47,10 @@ extern "C" {
 #include "clist.h"
 
 LIBETPAN_EXPORT
-int mailsmtp_init(mailsmtp * session);
+int mailsmtp_init(mailsmtp * session, const char * server_host_name);
 
 LIBETPAN_EXPORT
-int mailsmtp_init_with_ip(mailsmtp * session, int useip);
+int mailsmtp_init_with_ip(mailsmtp * session, int useip, const char * server_host_name);
 
 LIBETPAN_EXPORT
 int mailesmtp_send(mailsmtp * session,

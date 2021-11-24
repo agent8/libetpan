@@ -24,7 +24,6 @@ xcuserdata/
 /build-mac/build
 /build-mac/include
 /build-mac/dependencies/build/
-/build-mac/libsasl-ios/
 /build-mac/update.log
 /config.guess
 /config.h.in
@@ -142,7 +141,6 @@ third-party
 /build-windows/_headers_depends
 /build-windows/Makefile
 /build-windows/Makefile.in
-/build-windows/include/libetpan
 /build-windows/libetpan/x64/Debug
 /build-windows/libetpan/x64/Release
 /build-windows/libetpan/Debug
