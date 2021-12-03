@@ -166,3 +166,6 @@ third-party
 GPATH
 GRTAGS
 GTAGS
+.idea/
+libetpan.pc
+

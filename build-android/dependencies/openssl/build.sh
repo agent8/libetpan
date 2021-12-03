@@ -3,7 +3,7 @@
 build_version=3
 version=1.1.1i
 package_name=openssl-android
-export MIN_SDK_VERSION=21
+export MIN_SDK_VERSION=23
 export HOST_TAG=darwin-x86_64
 
 if test "x$ANDROID_NDK" = x ; then
@@ -14,7 +14,7 @@ fi
 if test ! -f packages/openssl-$version.tar.gz; then
   mkdir -p packages
   cd packages
-  curl -O https://ftp.openssl.org/source/old/1.1.1/openssl-1.1.1i.tar.gz
+  curl -O https://ftp.openssl.org/source/openssl-$version.tar.gz
   cd ..
 fi
 
