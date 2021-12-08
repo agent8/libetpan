@@ -14,7 +14,7 @@ fi
 if test ! -f packages/openssl-$version.tar.gz; then
   mkdir -p packages
   cd packages
-  curl -O https://ftp.openssl.org/source/openssl-$version.tar.gz
+  curl -O https://ftp.openssl.org/source/old/1.1.1/openssl-1.1.1i.tar.gz
   cd ..
 fi
 
