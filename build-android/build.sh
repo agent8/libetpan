@@ -64,7 +64,7 @@ make prepare
 # Copy public headers to include
 cp -r include/libetpan "$current_dir/include"
 mkdir -p "$current_dir/$package_name-$build_version/include"
-cp -r include/libetpan "$current_dir/$package_name-$build_version/include"
+cp -r "$current_dir/include/libetpan" "$current_dir/$package_name-$build_version/include"
 
 # Start building.
 ANDROID_PLATFORM=android-23
