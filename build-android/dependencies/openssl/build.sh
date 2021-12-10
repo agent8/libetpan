@@ -3,7 +3,7 @@
 build_version=3
 version=1.1.1i
 package_name=openssl-android
-export MIN_SDK_VERSION=23
+export MIN_SDK_VERSION=21
 export HOST_TAG=darwin-x86_64
 
 if test "x$ANDROID_NDK" = x ; then
