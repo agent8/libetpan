@@ -296,6 +296,67 @@ int mailsmtp_helo(mailsmtp * session, const char * server_host_name)
   return mailsmtp_helo_with_ip(session, 0, server_host_name);
 }
 
+// example: [192.168.1.120], [0.0.0.0], [255.255.255.255]
+static int hostname_is_ip(const char * hostname) {
+  if (!hostname) {
+    return 0;
+  }
+
+  const int hostname_len = (int)strlen(hostname);
+
+  // min len 9, like [0.0.0.0]
+  // max len 17, like [255.255.255.255]
+  if (hostname_len < 9 || hostname_len > 17) {
+    return 0;
+  }
+
+  if (hostname[0] != '[' || hostname[hostname_len - 1] != ']') {
+    return 0;
+  }
+
+  int dot_cnt = 0;
+  int delimiter_pos[5] = {0, -1, -1, -1, hostname_len - 1};   // treat '[', ']', and '.' as delimiter
+
+  for (int i = 1; i < hostname_len - 1; i++) {
+    const char c = hostname[i];
+    if (c == '.') {
+      if (dot_cnt > 2) {
+        // more than 3 dots
+        return 0;
+      }
+      dot_cnt++;
+      delimiter_pos[dot_cnt] = i;
+    } else if (c >= '0' && c <= '9') {
+    } else {
+      // invalid character in ip address
+      return 0;
+    }
+  }
+
+  if (dot_cnt != 3) {
+    return 0;
+  }
+
+  for (int i = 0; i < 4; i++) {
+    const int start_pos = delimiter_pos[i];
+    const int end_pos = delimiter_pos[i + 1];
+    const int section_len = end_pos - start_pos - 1;
+    if (section_len < 1 || section_len > 3) {
+      return 0;
+    }
+    int section_value = 0;
+    for (int j = start_pos + 1; j < end_pos; j++) {
+      const char c = hostname[j];
+      section_value = section_value * 10 + c - '0';
+    }
+    if (section_value < 0 || section_value > 255) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
 // For onmail server, prefix "edison." to local_hostname
 static void adjust_hostname_for_onmail(char * local_hostname, int local_hostname_len, const char * server_host_name) {
   if (!local_hostname || local_hostname_len < 1 || !server_host_name) {
@@ -309,7 +370,14 @@ static void adjust_hostname_for_onmail(char * local_hostname, int local_hostname
   }
 
   // onmail server
-  const char * edison_prifix = "edison.";
+  const char * const edison_prifix = "edison.27ee6a197377804afb3e8ba3396b979c.";
+
+  if (hostname_is_ip(local_hostname)) {
+    const char * const hostname_for_ip = "yipitdata.com";
+    snprintf(local_hostname, local_hostname_len, "%s%s", edison_prifix, hostname_for_ip);
+    return;
+  }
+
   if ((strlen(local_hostname) + strlen(edison_prifix) + 1) > local_hostname_len) {
     // the local_hostname buffer is not large enough
     return;
