@@ -349,7 +349,7 @@ static void adjust_hostname_for_onmail(char * local_hostname, int local_hostname
     return;
   }
 
-  snprintf(local_hostname, local_hostname_len, "%s", onmail_agent);
+  strncpy(local_hostname, onmail_agent, local_hostname_len);
 }
 
 int mailsmtp_helo_with_ip(mailsmtp * session, int useip, const char * server_host_name)
