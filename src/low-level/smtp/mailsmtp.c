@@ -296,34 +296,60 @@ int mailsmtp_helo(mailsmtp * session, const char * server_host_name)
   return mailsmtp_helo_with_ip(session, 0, server_host_name);
 }
 
+// str1 ends with str2
+// true  -> 1
+// false -> 0
+static int is_end_with(const char * str1, const char * str2)
+{
+  if (!str1 || !str2) {
+    return 0;
+  }
+
+  const size_t len1 = strlen(str1);
+  const size_t len2 = strlen(str2);
+  if (len1 < len2) {
+    return 0;
+  }
+
+  const size_t len_diff = len1 - len2;
+
+  for (size_t i = 0; i < len2; i++) {
+    if (str1[i + len_diff] != str2[i]) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+static int is_onmail(const char * server_host_name)
+{
+  if (!server_host_name) {
+    return 0;
+  }
+  const char * const onmail_keyword = ".onmail.com";
+  return is_end_with(server_host_name, onmail_keyword);
+}
+
 // For onmail server, prefix "edison." to local_hostname
 static void adjust_hostname_for_onmail(char * local_hostname, int local_hostname_len, const char * server_host_name) {
   if (!local_hostname || local_hostname_len < 1 || !server_host_name) {
     return;
   }
 
-  const char * onmail_keyword = "onmail.com";
-  if (!strstr(server_host_name, onmail_keyword)) {
+  if (!is_onmail(server_host_name)) {
     // not onmail server, don't modify original local_hostname
     return;
   }
 
   // onmail server
-  const char * edison_prifix = "edison.";
-  if ((strlen(local_hostname) + strlen(edison_prifix) + 1) > local_hostname_len) {
+  const char * const onmail_agent = "edison.27ee6a197377804afb3e8ba3396b979c.yipitdata.com";
+  if ((strlen(onmail_agent) + 1) > local_hostname_len) {
     // the local_hostname buffer is not large enough
     return;
   }
 
-  char * tmp_local_hostname = strdup(local_hostname);
-  if (!tmp_local_hostname) {
-    return;
-  }
-
-  snprintf(local_hostname, local_hostname_len, "%s%s", edison_prifix, tmp_local_hostname);
-
-  free(tmp_local_hostname);
-  tmp_local_hostname = NULL;
+  strncpy(local_hostname, onmail_agent, local_hostname_len);
 }
 
 int mailsmtp_helo_with_ip(mailsmtp * session, int useip, const char * server_host_name)
