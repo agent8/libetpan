@@ -68,6 +68,11 @@ int mailimap_month_get_token_value(mailstream * fd, MMAPString * buffer,
 				   size_t * indx);
 const char * mailimap_month_get_token_str(int indx);
 
+int mailimap_day_of_week_get_token_value(mailstream * fd, MMAPString * buffer,
+                                         size_t * indx);
+
+int mailimap_us_time_zone_get_token_value(mailstream * fd, MMAPString * buffer,
+                                          size_t * indx);
 
 int mailimap_flag_get_token_value(mailstream * fd, MMAPString * buffer,
 				  size_t * indx);

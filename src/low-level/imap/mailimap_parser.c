@@ -310,6 +310,26 @@ static int mailimap_date_time_parse(mailstream * fd, MMAPString * buffer, struct
 				    size_t progr_rate,
 				    progress_function * progr_fun);
 
+static int mailimap_rfc5322_date_time_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx,
+                                            size_t * indx, struct mailimap_date_time ** result);
+
+static int mailimap_rfc5322_day_of_week_parse(mailstream * fd, MMAPString * buffer, size_t * indx, int * result);
+
+static int mailimap_rfc5322_date_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                       int * pday, int * pmonth, int * pyear);
+
+static int mailimap_rfc5322_time_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                       int * phour, int * pmin, int * psec, int * pzone);
+
+static int mailimap_rfc5322_time_of_day_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                              int * phour, int * pmin, int * psec);
+
+static int mailimap_rfc5322_time_zone_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                            int * pzone);
+
+static int mailimap_rfc5322_obs_time_zone_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                                int * pzone);
+
 #ifndef UNSTRICT_SYNTAX
 static int mailimap_digit_nz_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx,
 				   size_t * indx, int * result);
@@ -4572,6 +4592,9 @@ static int mailimap_date_time_parse(mailstream * fd, MMAPString * buffer, struct
   
   r = mailimap_date_time_no_quote_parse(fd, buffer, parser_ctx, &cur_token,
                                         &date_time, progr_rate, progr_fun);
+  if (r == MAILIMAP_ERROR_PARSE) {
+    r = mailimap_rfc5322_date_time_parse(fd, buffer, parser_ctx, &cur_token, &date_time);
+  }
   if (r != MAILIMAP_NO_ERROR) {
     res = r;
     goto err;
@@ -11371,3 +11394,318 @@ static int has_crlf(MMAPString * buffer, size_t index)
   return 0;
 }
 
+
+/**
+ * RFC5322
+ *
+ *    date-time    = [day-of-week ","] date time [CFWS]
+ *
+ * examples:
+ *    Thu, 3 Mar 2022 18:02:56 +0800 (CST)
+ *    Wed, 25 May 2022 13:24:20 -0400 (EDT)
+ */
+static int mailimap_rfc5322_date_time_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx,
+                                            size_t * indx, struct mailimap_date_time ** result)
+{
+  int day_of_week = 0;
+  int day = 0;
+  int month = 0;
+  int year = 0;
+  int hour = 0;
+  int min = 0;
+  int sec = 0;
+  int zone = 0;
+  struct mailimap_date_time * date_time = NULL;
+  size_t cur_token = * indx;
+  int r = 0;
+
+  r = mailimap_rfc5322_day_of_week_parse(fd, buffer, &cur_token, &day_of_week);
+  if (r == MAILIMAP_NO_ERROR) {
+    r = mailimap_unstrict_char_parse(fd, buffer, parser_ctx, &cur_token, ',');
+    if (r != MAILIMAP_NO_ERROR) {
+      return MAILIMAP_ERROR_PARSE;
+    }
+    mailimap_space_parse(fd, buffer, &cur_token);
+  } else if (r == MAILIMAP_ERROR_PARSE) {
+  } else {
+    return r;
+  }
+
+  r = mailimap_rfc5322_date_parse(fd, buffer, parser_ctx, &cur_token, &day, &month, &year);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_rfc5322_time_parse(fd, buffer, parser_ctx, &cur_token, &hour, &min, &sec, &zone);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  date_time = mailimap_date_time_new(day, month, year, hour, min, sec, zone);
+  if (date_time == NULL) {
+    return MAILIMAP_ERROR_MEMORY;
+  }
+
+  * result = date_time;
+  * indx = cur_token;
+
+  return MAILIMAP_NO_ERROR;
+}
+
+
+/**
+ * RFC5322
+ *    day-of-week  = ([FWS] day-name) / obs-day-of-week
+ *    day-name     = "Mon" / "Tue" / "Wed" / "Thu" / "Fri" / "Sat" / "Sun"
+ */
+static int mailimap_rfc5322_day_of_week_parse(mailstream * fd, MMAPString * buffer, size_t * indx, int * result)
+{
+  int day_of_week = -1;
+  size_t cur_token = * indx;
+
+  day_of_week = mailimap_day_of_week_get_token_value(fd, buffer, &cur_token);
+  if (day_of_week == -1) {
+    return MAILIMAP_ERROR_PARSE;
+  }
+
+  * result = day_of_week;
+  * indx = cur_token;
+
+  return MAILIMAP_NO_ERROR;
+}
+
+
+/**
+ * RFC5322
+ *    date         = day month year
+ *    day          = ([FWS] 1*2DIGIT FWS) / obs-day
+ *    month        = "Jan" / "Feb" / "Mar" / "Apr" / "May" / "Jun" / "Jul" / "Aug" / "Sep" / "Oct" / "Nov" / "Dec"
+ *    year         = (FWS 4*DIGIT FWS) / obs-year
+ *
+ * examples:
+ *    3 Mar 2022
+ *    25 May 2022
+ */
+static int mailimap_rfc5322_date_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                       int * pday, int * pmonth, int * pyear)
+{
+  int day = 1;
+  int month = 1;
+  int year = 1;
+  size_t cur_token = *indx;
+  int r = 0;
+
+  r = mailimap_date_day_fixed_parse(fd, buffer, &cur_token, &day);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_space_parse(fd, buffer, &cur_token);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_date_month_parse(fd, buffer, parser_ctx, &cur_token, &month);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_space_parse(fd, buffer, &cur_token);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_date_year_parse(fd, buffer, parser_ctx, &cur_token, &year);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_space_parse(fd, buffer, &cur_token);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  * pday = day;
+  * pmonth = month;
+  * pyear = year;
+  * indx = cur_token;
+
+  return MAILIMAP_NO_ERROR;
+}
+
+
+/**
+ * RFC5322
+ *
+ *    time         = time-of-day zone
+ *
+ * examples:
+ *    18:02:56 +0800 (CST)
+ *    13:24:20 -0400 (EDT)
+ */
+static int mailimap_rfc5322_time_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                       int * phour, int * pmin, int * psec, int * pzone)
+{
+  int hour = 0;
+  int min = 0;
+  int sec = 0;
+  int zone = 0;
+  size_t cur_token = *indx;
+  int r = 0;
+
+  r = mailimap_rfc5322_time_of_day_parse(fd, buffer, parser_ctx, &cur_token, &hour, &min, &sec);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_rfc5322_time_zone_parse(fd, buffer, parser_ctx, &cur_token, &zone);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  * phour = hour;
+  * pmin = min;
+  * psec = sec;
+  * pzone = zone;
+  * indx = cur_token;
+
+  return MAILIMAP_NO_ERROR;
+}
+
+
+/**
+ * RFC5322
+ *
+ *    time-of-day  = hour ":" minute [":" second]
+ *    hour         = 2DIGIT / obs-hour
+ *    minute       = 2DIGIT / obs-minute
+ *    second       = 2DIGIT / obs-second
+ *
+ * examples:
+ *    18:02:56
+ *    13:24
+ */
+static int mailimap_rfc5322_time_of_day_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                              int * phour, int * pmin, int * psec)
+{
+  int hour = 0;
+  int min = 0;
+  int sec = 0;
+  size_t cur_token = *indx;
+  int r = 0;
+
+  r = mailimap_number_parse(fd, buffer, &cur_token, &hour);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_colon_parse(fd, buffer, parser_ctx, &cur_token);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_number_parse(fd, buffer, &cur_token, &min);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_colon_parse(fd, buffer, parser_ctx, &cur_token);
+  if (r == MAILIMAP_NO_ERROR) {
+    r = mailimap_number_parse(fd, buffer, &cur_token, &sec);
+    if (r != MAILIMAP_NO_ERROR) {
+      return MAILIMAP_ERROR_PARSE;
+    }
+  } else if (r == MAILIMAP_ERROR_PARSE) {
+  } else {
+    return r;
+  }
+
+  * phour = hour;
+  * pmin = min;
+  * psec = sec;
+  * indx = cur_token;
+
+  return MAILIMAP_NO_ERROR;
+}
+
+
+/**
+ * RFC5322
+ *
+ *    zone         = (FWS ("+" / "-") 4DIGIT) / obs-zone
+ *
+ * examples:
+ *    +0800 (CST)
+ *    -0400 (EDT)
+ */
+static int mailimap_rfc5322_time_zone_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                            int * pzone)
+{
+  int zone = 0;
+  int obs_zone = 0;
+  size_t cur_token = *indx;
+  int r = 0;
+
+  r = mailimap_space_parse(fd, buffer, &cur_token);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  r = mailimap_zone_parse(fd, buffer, parser_ctx, &cur_token, &zone);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  mailimap_rfc5322_obs_time_zone_parse(fd, buffer, parser_ctx, &cur_token, &obs_zone);
+
+  * pzone = zone;
+  * indx = cur_token;
+
+  return MAILIMAP_NO_ERROR;
+}
+
+
+/*
+ * obs-zone        =       "UT" / "GMT" /          ; Universal Time
+ *                                                 ; North American UT
+ *                                                 ; offsets
+ *                         "EST" / "EDT" /         ; Eastern:  - 5/ - 4
+ *                         "CST" / "CDT" /         ; Central:  - 6/ - 5
+ *                         "MST" / "MDT" /         ; Mountain: - 7/ - 6
+ *                         "PST" / "PDT" /         ; Pacific:  - 8/ - 7
+ *
+ *                         %d65-73 /               ; Military zones - "A"
+ *                         %d75-90 /               ; through "I" and "K"
+ *                         %d97-105 /              ; through "Z", both
+ *                         %d107-122               ; upper and lower case
+ * examples:
+ *    (CST)
+ *    (EDT)
+*/
+static int mailimap_rfc5322_obs_time_zone_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx, size_t * indx,
+                                                int * pzone)
+{
+  int zone = 0;
+  size_t cur_token = *indx;
+  int r = 0;
+
+  r = mailimap_oparenth_parse(fd, buffer, parser_ctx, &cur_token);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  zone = mailimap_us_time_zone_get_token_value(fd, buffer, &cur_token);
+  if (zone == -1) {
+    return r;
+  }
+
+  r = mailimap_cparenth_parse(fd, buffer, parser_ctx, &cur_token);
+  if (r != MAILIMAP_NO_ERROR) {
+    return r;
+  }
+
+  * pzone = zone;
+  * indx = cur_token;
+
+  return MAILIMAP_NO_ERROR;
+}
