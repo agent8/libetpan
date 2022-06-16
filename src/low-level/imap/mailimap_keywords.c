@@ -235,7 +235,38 @@ const char * mailimap_month_get_token_str(int indx)
 }
 
 
+static struct mailimap_token_value day_of_week_tab[] = {
+  {1,  "Mon"},
+  {2,  "Tue"},
+  {3,  "Wed"},
+  {4,  "Thu"},
+  {5,  "Fri"},
+  {6,  "Sat"},
+  {7,  "Sun"}
+};
 
+int mailimap_day_of_week_get_token_value(mailstream * fd, MMAPString * buffer,
+                                         size_t * indx)
+{
+    return mailimap_get_token_value(fd, buffer, indx, day_of_week_tab);
+}
+
+static struct mailimap_token_value us_time_zone_tab[] = {
+  {-500,  "EST"},
+  {-400,  "EDT"},
+  {-600,  "CST"},
+  {-500,  "CDT"},
+  {-700,  "MST"},
+  {-600,  "MDT"},
+  {-800,  "PST"},
+  {-700,  "PDT"}
+};
+
+int mailimap_us_time_zone_get_token_value(mailstream * fd, MMAPString * buffer,
+                                          size_t * indx)
+{
+    return mailimap_get_token_value(fd, buffer, indx, us_time_zone_tab);
+}
 
 
 static struct mailimap_token_value mailimap_flag_tab[] = {
