@@ -542,6 +542,7 @@ mailstream_low * mailstream_low_cfstream_open_voip_timeout(const char * hostname
   r = low_open(s);
   if (r < 0) {
     mailstream_low_cfstream_close(s);
+    mailstream_low_cfstream_free(s);
     return NULL;
   }
   
