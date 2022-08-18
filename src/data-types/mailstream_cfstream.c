@@ -1001,11 +1001,6 @@ int mailstream_cfstream_set_ssl_enabled(mailstream * s, int ssl_enabled)
     CFReadStreamSetProperty(cfstream_data->readStream, kCFStreamPropertySSLSettings, settings);
     CFWriteStreamSetProperty(cfstream_data->writeStream, kCFStreamPropertySSLSettings, settings);
     CFRelease(settings);
-
-    // only for test, lzx
-    CFMutableDictionaryRef setting_copy = (CFMutableDictionaryRef)CFReadStreamCopyProperty(cfstream_data->readStream, kCFStreamPropertySSLSettings);
-    CFStringRef cf_ssl_peer_name_copy = CFDictionaryGetValue(setting_copy, kCFStreamSSLPeerName);
-    const char * ssl_peer_name_copy = CFStringGetCStringPtr(cf_ssl_peer_name_copy, kCFStringEncodingUTF8);
   }
   else {
     CFMutableDictionaryRef settings;
