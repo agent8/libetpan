@@ -168,4 +168,4 @@ GRTAGS
 GTAGS
 .idea/
 libetpan.pc
-
+/.vscode
