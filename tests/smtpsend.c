@@ -180,10 +180,10 @@ int send_message(char *data, size_t len, char**rcpts) {
   /* then introduce ourselves */
   if (smtp_lmtp)
     ret = mailesmtp_lhlo(smtp, "lmtp-test");
-  else if (smtp_esmtp && (ret = mailesmtp_ehlo(smtp)) == MAILSMTP_NO_ERROR)
+  else if (smtp_esmtp && (ret = mailesmtp_ehlo(smtp, "")) == MAILSMTP_NO_ERROR)
     esmtp = 1;
   else if (!smtp_esmtp || ret == MAILSMTP_ERROR_NOT_IMPLEMENTED)
-    ret = mailsmtp_helo(smtp);
+    ret = mailsmtp_helo(smtp, "");
   if (ret != MAILSMTP_NO_ERROR) {
     fprintf(stderr, "mailsmtp_helo: %s\n", mailsmtp_strerror(ret));
     goto error;
@@ -199,10 +199,10 @@ int send_message(char *data, size_t len, char**rcpts) {
     /* introduce ourselves again */
     if (smtp_lmtp)
       ret = mailesmtp_lhlo(smtp, "lmtp-test");
-    else if (smtp_esmtp && (ret = mailesmtp_ehlo(smtp)) == MAILSMTP_NO_ERROR)
+    else if (smtp_esmtp && (ret = mailesmtp_ehlo(smtp, "")) == MAILSMTP_NO_ERROR)
       esmtp = 1;
     else if (!smtp_esmtp || ret == MAILSMTP_ERROR_NOT_IMPLEMENTED)
-      ret = mailsmtp_helo(smtp);
+      ret = mailsmtp_helo(smtp, "");
     if (ret != MAILSMTP_NO_ERROR) {
       fprintf(stderr, "mailsmtp_helo: %s\n", mailsmtp_strerror(ret));
       goto error;

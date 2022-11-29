@@ -9,7 +9,6 @@
 
 #include <libetpan/charconv.h>
 #include <libetpan/libetpan.h>
-#include <libetpan/win_init.h>
 
 #include "option-parser.h"
 #include "readmsg-common.h"
@@ -256,9 +255,6 @@ int main(int argc, char ** argv)
   char * flags_directory;
   struct mailstorage * storage;
   struct mailfolder * folder;
-
-  /* get options */
-  init_windows_startup();
 
   r = parse_options(argc, argv,
       &driver, &server, &port, &connection_type,
