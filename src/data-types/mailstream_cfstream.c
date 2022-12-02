@@ -504,6 +504,13 @@ mailstream_low * mailstream_low_cfstream_open_voip_timeout(const char * hostname
     CFReadStreamSetProperty(readStream, kCFStreamPropertySOCKSProxy, proxySettings);
     CFWriteStreamSetProperty(writeStream, kCFStreamPropertySOCKSProxy, proxySettings);
   }
+  // http proxy
+  CFNumberRef httpEnable = CFDictionaryGetValue(proxySettings, kCFNetworkProxiesHTTPEnable);
+  CFNumberRef httpsEnable = CFDictionaryGetValue(proxySettings, kCFNetworkProxiesHTTPSEnable);
+  if (numberIntValue(httpEnable) || numberIntValue(httpsEnable)) {
+    CFReadStreamSetProperty(readStream, kCFStreamPropertyHTTPProxy, proxySettings);
+    CFWriteStreamSetProperty(writeStream, kCFStreamPropertyHTTPProxy, proxySettings);
+  }
   CFRelease(proxySettings);
 #endif
 
