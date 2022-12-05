@@ -504,6 +504,13 @@ mailstream_low * mailstream_low_cfstream_open_voip_timeout(const char * hostname
     CFReadStreamSetProperty(readStream, kCFStreamPropertySOCKSProxy, proxySettings);
     CFWriteStreamSetProperty(writeStream, kCFStreamPropertySOCKSProxy, proxySettings);
   }
+  // http proxy
+  CFNumberRef httpEnable = CFDictionaryGetValue(proxySettings, kCFNetworkProxiesHTTPEnable);
+  CFNumberRef httpsEnable = CFDictionaryGetValue(proxySettings, kCFNetworkProxiesHTTPSEnable);
+  if (numberIntValue(httpEnable) || numberIntValue(httpsEnable)) {
+    CFReadStreamSetProperty(readStream, kCFStreamPropertyHTTPProxy, proxySettings);
+    CFWriteStreamSetProperty(writeStream, kCFStreamPropertyHTTPProxy, proxySettings);
+  }
   CFRelease(proxySettings);
 #endif
 
@@ -991,6 +998,15 @@ int mailstream_cfstream_set_ssl_enabled(mailstream * s, int ssl_enabled)
       CFDictionarySetValue(settings, kCFStreamSSLValidatesCertificateChain, kCFBooleanFalse);
     }
     
+    // enable SNI (Server Name Indication)
+    if (cfstream_data->ssl_peer_name && cfstream_data->ssl_peer_name[0] != 0) {
+      CFStringRef ssl_peer_name = CFStringCreateWithCString(NULL, cfstream_data->ssl_peer_name, kCFStringEncodingUTF8);
+      CFDictionarySetValue(settings, kCFStreamSSLPeerName, ssl_peer_name);
+      CFRelease(ssl_peer_name);
+    }
+    // is server
+    CFDictionarySetValue(settings, kCFStreamSSLIsServer, kCFBooleanFalse);
+  
     CFReadStreamSetProperty(cfstream_data->readStream, kCFStreamPropertySSLSettings, settings);
     CFWriteStreamSetProperty(cfstream_data->writeStream, kCFStreamPropertySSLSettings, settings);
     CFRelease(settings);
