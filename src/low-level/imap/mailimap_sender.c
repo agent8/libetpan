@@ -2126,6 +2126,9 @@ static int mailimap_search_key_need_to_send_charset(struct mailimap_search_key *
     case MAILIMAP_SEARCH_KEY_XGMMSGID:
       return 0;
       
+    case MAILIMAP_SEARCH_KEY_RAW:
+      return 0;
+
     default:
       /* don't know, better send */
       return 1;
@@ -2659,6 +2662,12 @@ static int search_key_send(mailstream * fd,
         return r;
       return MAILIMAP_NO_ERROR;
       
+    case MAILIMAP_SEARCH_KEY_RAW:
+      r = mailimap_token_send(fd, key->sk_data.sk_raw);
+      if (r != MAILIMAP_NO_ERROR)
+        return r;
+      return MAILIMAP_NO_ERROR;
+
     case MAILIMAP_SEARCH_KEY_MULTIPLE:
       if (!toplevel) {
         r = mailimap_oparenth_send(fd);

@@ -2983,7 +2983,8 @@ enum {
   MAILIMAP_SEARCH_KEY_MODSEQ,     /* mod sequence */
   MAILIMAP_SEARCH_KEY_XGMTHRID,   /* Gmail thread id */
   MAILIMAP_SEARCH_KEY_XGMMSGID,   /* Gmail Message id */
-  MAILIMAP_SEARCH_KEY_XGMRAW      /* Gmail RAW expression */
+  MAILIMAP_SEARCH_KEY_XGMRAW,     /* Gmail RAW expression */
+  MAILIMAP_SEARCH_KEY_RAW         /* RAW expression */
 };
 
 /*
@@ -3102,6 +3103,7 @@ struct mailimap_search_key {
     uint64_t sk_xgmthrid;
     uint64_t sk_xgmmsgid;
     char * sk_xgmraw;
+    char * sk_raw;
     clist * sk_multiple; /* list of (struct mailimap_search_key *) */
     struct {
       struct mailimap_flag * sk_entry_name;
@@ -3145,6 +3147,10 @@ mailimap_search_key_new_xgmmsgid(uint64_t sk_xgmmsgid);
 LIBETPAN_EXPORT
 struct mailimap_search_key *
 mailimap_search_key_new_xgmraw(char * sk_xgmraw);
+
+LIBETPAN_EXPORT
+struct mailimap_search_key *
+mailimap_search_key_new_raw(char * sk_raw);
 
 LIBETPAN_EXPORT
 void mailimap_search_key_free(struct mailimap_search_key * key);
