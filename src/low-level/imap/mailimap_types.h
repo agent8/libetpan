@@ -2984,7 +2984,7 @@ enum {
   MAILIMAP_SEARCH_KEY_XGMTHRID,   /* Gmail thread id */
   MAILIMAP_SEARCH_KEY_XGMMSGID,   /* Gmail Message id */
   MAILIMAP_SEARCH_KEY_XGMRAW,     /* Gmail RAW expression */
-  MAILIMAP_SEARCH_KEY_RAW         /* Gmail RAW expression */
+  MAILIMAP_SEARCH_KEY_RAW         /* RAW expression */
 };
 
 /*
