@@ -7643,6 +7643,7 @@ mailimap_message_data_parse_progress(mailstream * fd, MMAPString * buffer, struc
     r = mailimap_msg_att_parse_progress(fd, buffer, parser_ctx, &cur_token, &msg_att,
 			       progr_rate, progr_fun, body_progr_fun, items_progr_fun, context, msg_att_handler, msg_att_context);
     if (r != MAILIMAP_NO_ERROR) {
+      int orig_r = r;
       // Recover from parser error
       char * tmp_char = buffer->str + cur_token;
       int step = 0;
@@ -7714,7 +7715,8 @@ mailimap_message_data_parse_progress(mailstream * fd, MMAPString * buffer, struc
         type = MAILIMAP_MESSAGE_DATA_ERROR;
       } else {
         // Unknow error
-        res = MAILIMAP_ERROR_PARSE;
+        // res = MAILIMAP_ERROR_PARSE;
+        res = orig_r;
         goto err;
       }
     } else {

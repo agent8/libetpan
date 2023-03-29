@@ -2523,6 +2523,8 @@ int mailimap_parse_response(mailimap * session,
 
   mailimap_parser_context_free(parser_ctx);
 
+  mmap_string_assign(session->imap_response_buffer, "");    // clear imap_response_buffer of previous command first
+
   if (r != MAILIMAP_NO_ERROR)
     return r;
 
