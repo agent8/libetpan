@@ -2957,6 +2957,22 @@ mailimap_search_key_new_xgmraw(char * sk_xgmraw)
 }
 
 LIBETPAN_EXPORT
+struct mailimap_search_key *
+mailimap_search_key_new_raw(char * sk_raw)
+{
+  struct mailimap_search_key * key;
+
+  key = malloc(sizeof(* key));
+  if (key == NULL)
+    return NULL;
+
+  key->sk_type = MAILIMAP_SEARCH_KEY_RAW;
+  key->sk_data.sk_raw = sk_raw;
+
+  return key;
+}
+
+LIBETPAN_EXPORT
 void mailimap_search_key_free(struct mailimap_search_key * key)
 {
   switch (key->sk_type) {
@@ -3034,6 +3050,9 @@ void mailimap_search_key_free(struct mailimap_search_key * key)
     break;
   case MAILIMAP_SEARCH_KEY_XGMRAW:
     mailimap_astring_free(key->sk_data.sk_xgmraw);
+    break;
+  case MAILIMAP_SEARCH_KEY_RAW:
+    mailimap_astring_free(key->sk_data.sk_raw);
     break;
   }
   
