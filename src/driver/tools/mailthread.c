@@ -245,9 +245,6 @@ static char * extract_subject(char * default_from,
   else
     subj = strdup(str);
 
-  if (subj == NULL)
-    return NULL;
-
   len = strlen(subj);
 
   /*

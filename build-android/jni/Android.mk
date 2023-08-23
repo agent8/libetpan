@@ -9,11 +9,6 @@ ifeq ($(CYRUS_SASL_PATH),)
 $(error CYRUS_SASL_PATH must be set)
 endif
 
-
-ifeq ($(ICONV_PATH),)
-$(error ICONV_PATH must be set)
-endif
-
 src_files = \
 ./src/data-types/base64.c \
 ./src/data-types/carray.c \
@@ -128,7 +123,7 @@ src_files = \
 NDK_TOOLCHAIN_VERSION := clang
 LOCAL_MODULE := etpan
 LOCAL_SRC_FILES := $(addprefix ../../, $(src_files))
-LOCAL_CFLAGS += -DHAVE_CONFIG_H=1 -DHAVE_ICONV=1
+LOCAL_CFLAGS += -DHAVE_CONFIG_H=1
 c_includes = \
 src \
 src/data-types \
@@ -144,9 +139,7 @@ src/driver/implementation/data-message \
 src/driver/interface
 
 LOCAL_C_INCLUDES = $(addprefix ../../, $(c_includes)) \
-  libetpan-android-7/include \
-  $(OPENSSL_PATH)/include $(CYRUS_SASL_PATH)/include $(ICONV_PATH)/include	  libetpan-android-7/include/libetpan \
-  $(OPENSSL_PATH)/include \
-  $(LOCAL_PATH)/../include $(LOCAL_PATH)/../include/libetpan
+  $(LOCAL_PATH)/../include $(LOCAL_PATH)/../include/libetpan \
+  $(OPENSSL_PATH)/include $(CYRUS_SASL_PATH)/include
 
 include $(BUILD_STATIC_LIBRARY)

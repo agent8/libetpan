@@ -340,10 +340,11 @@ int mailimap_sort_key_send(mailstream * fd,
       return mailimap_token_send(fd, "TO");
       
     case MAILIMAP_SORT_KEY_MULTIPLE:
-      return mailimap_struct_spaced_list_send(fd, key->sortk_multiple,
+      r = mailimap_struct_spaced_list_send(fd, key->sortk_multiple,
                                            (mailimap_struct_sender *)
                                            mailimap_sort_key_send);
       
+      return MAILIMAP_NO_ERROR;
     default:
       /* should not happend */
       return MAILIMAP_ERROR_INVAL;
