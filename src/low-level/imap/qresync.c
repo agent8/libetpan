@@ -28,7 +28,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types"
 #include "qresync.h"
 #include "qresync_private.h"
 
