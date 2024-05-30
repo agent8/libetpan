@@ -399,7 +399,36 @@ static ssize_t mailstream_low_socket_write(mailstream_low * s,
       return 0;
   }
   
+#if defined(WIN32)
+  int ret = send(socket_data->fd, buf, count, 0);
+  if (ret < 0) {
+    int retry = 0;
+    // printf("send failed\n");
+    if (WSAGetLastError() == WSAEWOULDBLOCK) {
+      // printf("WSAEWOULDBLOCK, retry\n");
+      retry = 1;
+    }
+
+    int retryCnt = 0;
+    while (retry == 1 && retryCnt < 50) {
+      retry = 0;
+      retryCnt++;
+      sleep(200);
+      // printf("retry send, %d\n\n", retryCnt);
+      ret = send(socket_data->fd, buf, count, 0);
+      if (ret < 0) {
+        // printf("send failed\n");
+        if (WSAGetLastError() == WSAEWOULDBLOCK) {
+          // printf("WSAEWOULDBLOCK, retry\n");
+          retry = 1;
+        }
+      }
+    }
+  }
+  return ret;
+#else
   return send(socket_data->fd, buf, count, 0);
+#endif
 }
 
 
