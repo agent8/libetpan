@@ -87,6 +87,7 @@
 #ifdef USE_SSL
 # ifndef USE_GNUTLS
 #  include <openssl/ssl.h>
+#  include <openssl/err.h>
 # else
 #  include <errno.h>
 #  include <gnutls/gnutls.h>
@@ -883,6 +884,13 @@ static int wait_read(mailstream_low * s)
   return 0;
 }
 
+#if defined(WIN32)
+int printSSLErr(const char * str, size_t len, void * u) {
+  // printf("OpenSSL Error: %.*s\n", (int)len, str);
+  return (int)len;
+}
+#endif
+
 #ifndef USE_GNUTLS
 static ssize_t mailstream_low_ssl_read(mailstream_low * s,
 				       void * buf, size_t count)
@@ -901,7 +909,11 @@ static ssize_t mailstream_low_ssl_read(mailstream_low * s,
     r = SSL_read(ssl_data->ssl_conn, buf, (int) count);
     if (r > 0)
       return r;
-    
+
+#if defined(WIN32)
+    ERR_print_errors_cb(printSSLErr, NULL);
+#endif
+
     ssl_r = SSL_get_error(ssl_data->ssl_conn, r);
     switch (ssl_r) {
     case SSL_ERROR_NONE:
@@ -1472,6 +1484,27 @@ static void mailstream_ssl_context_free(struct mailstream_ssl_context * ssl_ctx)
   }
 }
 #endif
+
+void mailstream_ssl_context_set_server_name(struct mailstream_ssl_context * ssl_context, void * server_name) {
+#if (OPENSSL_VERSION_NUMBER >= 0x10000000L)
+  if (!ssl_context) {
+    return;
+  }
+
+  if (!server_name) {
+    return;
+  }
+
+  if (ssl_context->server_name) {
+    free(ssl_context->server_name);
+    ssl_context->server_name = NULL;
+  }
+
+  const char * server_name_str = (const char *)server_name;
+  ssl_context->server_name = strdup(server_name_str);
+#endif
+}
+
 #endif
 
 void * mailstream_ssl_get_openssl_ssl_ctx(struct mailstream_ssl_context * ssl_context)

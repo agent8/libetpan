@@ -52,6 +52,7 @@
 #endif
 
 #include "mailstream_cfstream.h"
+#include "mailstream_ssl.h"
 
 #define DEFAULT_IMAPS_PORT 993
 #define SERVICE_NAME_IMAPS "imaps"
@@ -113,8 +114,13 @@ int mailimap_ssl_connect(mailimap * f, const char * server, uint16_t port)
 
 int mailimap_ssl_connect_voip(mailimap * f, const char * server, uint16_t port, int voip_enabled)
 {
+#if defined(WIN32)
+  return mailimap_ssl_connect_voip_with_callback(f, server, port, voip_enabled,
+      mailstream_ssl_context_set_server_name, server);
+#else
   return mailimap_ssl_connect_voip_with_callback(f, server, port, voip_enabled,
       NULL, NULL);
+#endif
 }
 
 #if HAVE_CFNETWORK
