@@ -1731,6 +1731,35 @@ static int mailimf_phrase_parse(const char * message, size_t length,
   return res;
 }
 
+static size_t skip_blank_lines_for_fws(const char * message, size_t length) {
+  if (!message) {
+    return 0;
+  }
+
+  if (length < 3) {
+    return 0;
+  }
+
+  size_t idx = 0;
+  while ((idx + 1) < length && message[idx] == '\r' && message[idx + 1] == '\n') {
+    idx += 2;
+  }
+
+  if (idx == 0) {
+    return 0;
+  }
+
+  if (idx >= length) {
+    return 0;
+  }
+
+  if ((message[idx] != ' ') && (message[idx] != '\t')) {
+    return 0;
+  }
+
+  return idx;
+}
+
 /*
 utext           =       NO-WS-CTL /     ; Non white space controls
                         %d33-126 /      ; The rest of US-ASCII
@@ -1782,65 +1811,70 @@ static int mailimf_unstructured_parse(const char * message, size_t length,
     switch(state) {
     case UNSTRUCTURED_START:
       if (cur_token >= length)
-	return MAILIMF_ERROR_PARSE;
+        return MAILIMF_ERROR_PARSE;
 
       terminal = cur_token;
       switch(message[cur_token]) {
       case '\r':
-	state = UNSTRUCTURED_CR;
-	break;
+        state = UNSTRUCTURED_CR;
+        break;
       case '\n':
-	state = UNSTRUCTURED_LF;
-	break;
+        state = UNSTRUCTURED_LF;
+        break;
       default:
-	state = UNSTRUCTURED_START;
-	break;
+        state = UNSTRUCTURED_START;
+        break;
       }
       break;
     case UNSTRUCTURED_CR:
       if (cur_token >= length)
-	return MAILIMF_ERROR_PARSE;
+        return MAILIMF_ERROR_PARSE;
 
       switch(message[cur_token]) {
       case '\n':
-	state = UNSTRUCTURED_LF;
-	break;
+        state = UNSTRUCTURED_LF;
+        break;
       default:
-	state = UNSTRUCTURED_START;
-	break;
+        state = UNSTRUCTURED_START;
+        break;
       }
       break;
 
     case UNSTRUCTURED_LF:
       if (cur_token >= length) {
-	state = UNSTRUCTURED_OUT;
-	break;
+        state = UNSTRUCTURED_OUT;
+        break;
+      }
+
+      size_t skip_len = skip_blank_lines_for_fws(message + cur_token, length - cur_token);
+      if (skip_len != 0) {
+        cur_token += skip_len;
       }
 
       switch(message[cur_token]) {
       case '\t':
       case ' ':
-	state = UNSTRUCTURED_WSP;
-	break;
+        state = UNSTRUCTURED_WSP;
+        break;
       default:
-	state = UNSTRUCTURED_OUT;
-	break;
+        state = UNSTRUCTURED_OUT;
+        break;
       }
       break;
     case UNSTRUCTURED_WSP:
       if (cur_token >= length)
-	return MAILIMF_ERROR_PARSE;
+        return MAILIMF_ERROR_PARSE;
 
       switch(message[cur_token]) {
       case '\r':
-	state = UNSTRUCTURED_CR;
-	break;
+        state = UNSTRUCTURED_CR;
+        break;
       case '\n':
-	state = UNSTRUCTURED_LF;
-	break;
+        state = UNSTRUCTURED_LF;
+        break;
       default:
-	state = UNSTRUCTURED_START;
-	break;
+        state = UNSTRUCTURED_START;
+        break;
       }
       break;
     }
