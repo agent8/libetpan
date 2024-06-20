@@ -991,6 +991,13 @@ int mailstream_cfstream_set_ssl_enabled(mailstream * s, int ssl_enabled)
       CFDictionarySetValue(settings, kCFStreamSSLValidatesCertificateChain, kCFBooleanFalse);
     }
     
+    // enable SNI (Server Name Indication)
+    if (cfstream_data->ssl_peer_name && cfstream_data->ssl_peer_name[0] != 0) {
+      CFStringRef ssl_peer_name = CFStringCreateWithCString(NULL, cfstream_data->ssl_peer_name, kCFStringEncodingUTF8);
+      CFDictionarySetValue(settings, kCFStreamSSLPeerName, ssl_peer_name);
+      CFRelease(ssl_peer_name);
+    }
+
     CFReadStreamSetProperty(cfstream_data->readStream, kCFStreamPropertySSLSettings, settings);
     CFWriteStreamSetProperty(cfstream_data->writeStream, kCFStreamPropertySSLSettings, settings);
     CFRelease(settings);
