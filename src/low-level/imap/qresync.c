@@ -43,6 +43,8 @@
 #include "mailimap_keywords.h"
 #include "mailimap_parser.h"
 
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types"
+
 /*
 capability          =/ "QRESYNC"
 

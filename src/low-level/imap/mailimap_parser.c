@@ -4630,6 +4630,7 @@ static int mailimap_date_time_parse(mailstream * fd, MMAPString * buffer, struct
   r = mailimap_date_time_no_quote_parse(fd, buffer, parser_ctx, &cur_token,
                                         &date_time, progr_rate, progr_fun);
   if (r == MAILIMAP_ERROR_PARSE) {
+    // To be compatible with the RFC5322 date-time format, such as "Thu, 3 Mar 2022 18:02:56 +0800 (CST)".
     r = mailimap_rfc5322_date_time_parse(fd, buffer, parser_ctx, &cur_token, &date_time);
   }
   if (r != MAILIMAP_NO_ERROR) {
@@ -4639,6 +4640,7 @@ static int mailimap_date_time_parse(mailstream * fd, MMAPString * buffer, struct
   
   r = mailimap_dquote_parse(fd, buffer, parser_ctx, &cur_token);
   if (r == MAILIMAP_ERROR_PARSE && cur_token < buffer->len) {
+    // To be compatible with this format, "17-Jul-2024 11:42:39 +0300 MSK".
     size_t skip_len = skip_timezone_name_for_internaldate(buffer->str + cur_token, buffer->len - cur_token);
     if (skip_len != 0) {
       cur_token += skip_len;
