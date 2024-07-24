@@ -43,8 +43,6 @@
 #include "mailimap_keywords.h"
 #include "mailimap_parser.h"
 
-#pragma clang diagnostic ignored "-Wincompatible-pointer-types"
-
 /*
 capability          =/ "QRESYNC"
 
@@ -93,12 +91,17 @@ static int
 	struct mailimap_extension_data ** result,
 	size_t progr_rate, progress_function * progr_fun);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types"
+
 struct mailimap_extension_api mailimap_extension_qresync = {
   /* name */          "QRESYNC",
   /* extension_id */  MAILIMAP_EXTENSION_QRESYNC,
   /* parser */        mailimap_qresync_extension_parse,
   /* free */          mailimap_qresync_extension_data_free
 };
+
+#pragma clang diagnostic pop
 
 int mailimap_select_qresync_send(mailstream * fd, const char * mb,
   uint32_t uidvalidity, uint64_t modseq_value,
