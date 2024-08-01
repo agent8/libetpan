@@ -458,6 +458,11 @@ static struct mailstream_ssl_data * ssl_data_new_full(int fd, time_t timeout,
   
   SSL_CTX_set_app_data(tmp_ctx, ssl_context);
   SSL_CTX_set_client_cert_cb(tmp_ctx, mailstream_openssl_client_cert_cb);
+
+#ifdef WIN32
+  SSL_CTX_set_security_level(tmp_ctx, 1);
+#endif
+
   ssl_conn = (SSL *) SSL_new(tmp_ctx);
   if (ssl_conn == NULL)
     goto free_ctx;
@@ -470,6 +475,7 @@ static struct mailstream_ssl_data * ssl_data_new_full(int fd, time_t timeout,
 #if (OPENSSL_VERSION_NUMBER >= 0x10000000L)
   if (ssl_context != NULL && ssl_context->server_name != NULL) {
     SSL_set_tlsext_host_name(ssl_conn, ssl_context->server_name);
+    // SSL_set1_host(ssl_conn, ssl_context->server_name);
     free(ssl_context->server_name);
     ssl_context->server_name = NULL;
   }
@@ -480,6 +486,13 @@ static struct mailstream_ssl_data * ssl_data_new_full(int fd, time_t timeout,
   
 again:
   r = SSL_connect(ssl_conn);
+  // if (r < 0) {
+  //     long ret = SSL_get_verify_result(ssl_conn);
+  //     if (ret != X509_V_OK) {
+  //         const char * errMsg = X509_verify_cert_error_string(ret);
+  //         printf("X509 error: %s\n", errMsg);
+  //     }
+  // }
 
   switch(SSL_get_error(ssl_conn, r)) {
   	case SSL_ERROR_WANT_READ:
