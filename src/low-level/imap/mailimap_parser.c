@@ -4571,6 +4571,43 @@ int mailimap_hack_date_time_parse(char * str,
   return MAILIMAP_NO_ERROR;
 }
 
+// example:
+// INTERNALDATE "17-Jul-2024 11:42:39 +0300 MSK"
+static size_t skip_timezone_name_for_internaldate(const char * str, size_t len) {
+  if (!str) {
+    return 0;
+  }
+
+  if (len < 4) {
+    return 0;
+  }
+
+  if (str[0] != ' ') {
+    return 0;
+  }
+
+  size_t idx = 1;
+  while (idx < len && (is_alpha(str[idx]) || is_digit(str[idx]))) {
+    ++idx;
+  }
+
+  if (idx == len) {
+    return 0;
+  }
+
+  // In general, the length of a time zone name is between 2 and 6 characters.
+  // Assume that the maximum length of a time zone name is 10 characters.
+  if (idx < 3 || idx > 11) {
+    return 0;
+  }
+
+  if (str[idx] != '\"') {
+    return 0;
+  }
+
+  return idx;
+}
+
 static int mailimap_date_time_parse(mailstream * fd, MMAPString * buffer, struct mailimap_parser_context * parser_ctx,
                                     size_t * indx,
                                     struct mailimap_date_time ** result,
@@ -4593,6 +4630,7 @@ static int mailimap_date_time_parse(mailstream * fd, MMAPString * buffer, struct
   r = mailimap_date_time_no_quote_parse(fd, buffer, parser_ctx, &cur_token,
                                         &date_time, progr_rate, progr_fun);
   if (r == MAILIMAP_ERROR_PARSE) {
+    // To be compatible with the RFC5322 date-time format, such as "Thu, 3 Mar 2022 18:02:56 +0800 (CST)".
     r = mailimap_rfc5322_date_time_parse(fd, buffer, parser_ctx, &cur_token, &date_time);
   }
   if (r != MAILIMAP_NO_ERROR) {
@@ -4601,6 +4639,15 @@ static int mailimap_date_time_parse(mailstream * fd, MMAPString * buffer, struct
   }
   
   r = mailimap_dquote_parse(fd, buffer, parser_ctx, &cur_token);
+  if (r == MAILIMAP_ERROR_PARSE && cur_token < buffer->len) {
+    // To be compatible with this format, "17-Jul-2024 11:42:39 +0300 MSK".
+    size_t skip_len = skip_timezone_name_for_internaldate(buffer->str + cur_token, buffer->len - cur_token);
+    if (skip_len != 0) {
+      cur_token += skip_len;
+      r = mailimap_dquote_parse(fd, buffer, parser_ctx, &cur_token);
+    }
+  }
+
   if (r != MAILIMAP_NO_ERROR) {
     res = r;
     goto free_date_time;
@@ -8579,7 +8626,9 @@ mailimap_msg_att_static_parse_progress(mailstream * fd, MMAPString * buffer, str
     r = mailimap_msg_att_rfc822_header_parse(fd, buffer, parser_ctx, &cur_token,
 					     &rfc822_header, &length,
 					     progr_rate, progr_fun);
-    type = MAILIMAP_MSG_ATT_RFC822_HEADER;
+    if (r == MAILIMAP_NO_ERROR) {
+      type = MAILIMAP_MSG_ATT_RFC822_HEADER;
+    }
   }
   
   if (r == MAILIMAP_ERROR_PARSE) {

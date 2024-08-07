@@ -87,6 +87,7 @@
 #ifdef USE_SSL
 # ifndef USE_GNUTLS
 #  include <openssl/ssl.h>
+#  include <openssl/err.h>
 # else
 #  include <errno.h>
 #  include <gnutls/gnutls.h>
@@ -457,6 +458,11 @@ static struct mailstream_ssl_data * ssl_data_new_full(int fd, time_t timeout,
   
   SSL_CTX_set_app_data(tmp_ctx, ssl_context);
   SSL_CTX_set_client_cert_cb(tmp_ctx, mailstream_openssl_client_cert_cb);
+
+#ifdef WIN32
+  SSL_CTX_set_security_level(tmp_ctx, 1);
+#endif
+
   ssl_conn = (SSL *) SSL_new(tmp_ctx);
   if (ssl_conn == NULL)
     goto free_ctx;
@@ -469,6 +475,7 @@ static struct mailstream_ssl_data * ssl_data_new_full(int fd, time_t timeout,
 #if (OPENSSL_VERSION_NUMBER >= 0x10000000L)
   if (ssl_context != NULL && ssl_context->server_name != NULL) {
     SSL_set_tlsext_host_name(ssl_conn, ssl_context->server_name);
+    // SSL_set1_host(ssl_conn, ssl_context->server_name);
     free(ssl_context->server_name);
     ssl_context->server_name = NULL;
   }
@@ -479,6 +486,13 @@ static struct mailstream_ssl_data * ssl_data_new_full(int fd, time_t timeout,
   
 again:
   r = SSL_connect(ssl_conn);
+  // if (r < 0) {
+  //     long ret = SSL_get_verify_result(ssl_conn);
+  //     if (ret != X509_V_OK) {
+  //         const char * errMsg = X509_verify_cert_error_string(ret);
+  //         printf("X509 error: %s\n", errMsg);
+  //     }
+  // }
 
   switch(SSL_get_error(ssl_conn, r)) {
   	case SSL_ERROR_WANT_READ:
@@ -883,6 +897,13 @@ static int wait_read(mailstream_low * s)
   return 0;
 }
 
+#if defined(WIN32)
+int printSSLErr(const char * str, size_t len, void * u) {
+  // printf("OpenSSL Error: %.*s\n", (int)len, str);
+  return (int)len;
+}
+#endif
+
 #ifndef USE_GNUTLS
 static ssize_t mailstream_low_ssl_read(mailstream_low * s,
 				       void * buf, size_t count)
@@ -901,7 +922,11 @@ static ssize_t mailstream_low_ssl_read(mailstream_low * s,
     r = SSL_read(ssl_data->ssl_conn, buf, (int) count);
     if (r > 0)
       return r;
-    
+
+#if defined(WIN32)
+    ERR_print_errors_cb(printSSLErr, NULL);
+#endif
+
     ssl_r = SSL_get_error(ssl_data->ssl_conn, r);
     switch (ssl_r) {
     case SSL_ERROR_NONE:
@@ -1472,6 +1497,27 @@ static void mailstream_ssl_context_free(struct mailstream_ssl_context * ssl_ctx)
   }
 }
 #endif
+
+void mailstream_ssl_context_set_server_name(struct mailstream_ssl_context * ssl_context, void * server_name) {
+#if (OPENSSL_VERSION_NUMBER >= 0x10000000L)
+  if (!ssl_context) {
+    return;
+  }
+
+  if (!server_name) {
+    return;
+  }
+
+  if (ssl_context->server_name) {
+    free(ssl_context->server_name);
+    ssl_context->server_name = NULL;
+  }
+
+  const char * server_name_str = (const char *)server_name;
+  ssl_context->server_name = strdup(server_name_str);
+#endif
+}
+
 #endif
 
 void * mailstream_ssl_get_openssl_ssl_ctx(struct mailstream_ssl_context * ssl_context)
