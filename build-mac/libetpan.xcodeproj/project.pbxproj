@@ -551,13 +551,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		3D9C2A831B965D8E008F57C6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C6635C4D16E002340066276E;
-			remoteInfo = "libetpan-prepare-ios";
-		};
 		C6635C4716E000310066276E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
@@ -1768,12 +1761,10 @@
 				C6635C3416DFF0030066276E /* ShellScript */,
 				C682E21B15B315EF00BE9DA7 /* Sources */,
 				C682E2BC15B315EF00BE9DA7 /* Frameworks */,
-				C6740DB515B384FB00D4A16B /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				3D9C2A841B965D8E008F57C6 /* PBXTargetDependency */,
 			);
 			name = "libetpan ios";
 			productName = "static libetpan";
@@ -1879,19 +1870,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "mkdir -p \"$BUILT_PRODUCTS_DIR/$PUBLIC_HEADERS_FOLDER_PATH\"\nmkdir -p \"$BUILT_PRODUCTS_DIR/include/libetpan\"\nln -sf \"Versions/Current/Headers\" \"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME/Headers\"\nrsync -aL \"$SRCROOT/../include/libetpan/\" \"$BUILT_PRODUCTS_DIR/include/libetpan/\"\nrsync -aL \"$SRCROOT/../include/libetpan/\" \"$BUILT_PRODUCTS_DIR/$PUBLIC_HEADERS_FOLDER_PATH/\"\n";
-		};
-		C6740DB515B384FB00D4A16B /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cp \"$SRCROOT/libsasl-ios/lib/libsasl2.a\" \"$BUILT_PRODUCTS_DIR\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2451,11 +2429,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		3D9C2A841B965D8E008F57C6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C6635C4D16E002340066276E /* libetpan-prepare-ios */;
-			targetProxy = 3D9C2A831B965D8E008F57C6 /* PBXContainerItemProxy */;
-		};
 		C6635C4816E000310066276E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C6635C4316DFFE6E0066276E /* libetpan-prepare */;
