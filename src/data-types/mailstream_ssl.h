@@ -54,6 +54,9 @@ extern mailstream_low_driver * mailstream_ssl_driver;
 #endif
 
 struct mailstream_ssl_context;
+#ifdef USE_SSL
+void mailstream_ssl_context_set_server_name(struct mailstream_ssl_context * ssl_context, void * server_name);
+#endif
 
 LIBETPAN_EXPORT
 mailstream_low * mailstream_low_ssl_open(int fd);
