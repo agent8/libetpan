@@ -251,28 +251,30 @@ ssize_t mailstream_low_write(mailstream_low * s,
     const void * buf, size_t count)
 {
   ssize_t r;
-  
+
   if (s == NULL)
     return -1;
 
-#ifdef STREAM_DEBUG
-  STREAM_LOG(s, 1, ">>>>>>> send >>>>>>\n");
-  if (s->privacy) {
-    STREAM_LOG_BUF(s, 1, buf, count);
-  }
-  else {
-    STREAM_LOG_BUF(s, 2, buf, count);
-  }
-  STREAM_LOG(s, 1, "\n");
-  STREAM_LOG(s, 1, ">>>>>>> end send >>>>>>\n");
-#endif
-
   r = s->driver->mailstream_write(s, buf, count);
-  
+
   if (r < 0) {
     STREAM_LOG_ERROR(s, 4 | 1, buf, 0);
   }
-  
+
+#ifdef STREAM_DEBUG
+  if (r > 0) {
+    STREAM_LOG(s, 1, ">>>>>>> send >>>>>>\n");
+    if (s->privacy) {
+      STREAM_LOG_BUF(s, 1, buf, r);
+    }
+    else {
+      STREAM_LOG_BUF(s, 2, buf, r);
+    }
+    STREAM_LOG(s, 1, "\n");
+    STREAM_LOG(s, 1, ">>>>>>> end send >>>>>>\n");
+  }
+#endif
+
   return r;
 }
 
