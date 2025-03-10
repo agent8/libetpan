@@ -2448,6 +2448,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
@@ -2460,6 +2461,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.etpan.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = libetpan;
 				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -2480,7 +2483,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.etpan.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = libetpan;
 				SDKROOT = macosx;
-				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -2623,6 +2627,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
@@ -2635,6 +2640,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.etpan.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = libetpan;
 				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Privacy;
@@ -2645,6 +2652,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2653,6 +2661,8 @@
 				PRODUCT_NAME = etpan;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 			};
 			name = Privacy;
 		};
@@ -2694,6 +2704,8 @@
 				PRODUCT_NAME = "etpan-ios";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 			};
 			name = Privacy;
 		};
@@ -2763,6 +2775,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
@@ -2775,6 +2788,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.etpan.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = libetpan;
 				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Staging;
@@ -2785,6 +2800,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2793,6 +2809,8 @@
 				PRODUCT_NAME = etpan;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 			};
 			name = Staging;
 		};
@@ -2834,6 +2852,8 @@
 				PRODUCT_NAME = "etpan-ios";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 			};
 			name = Staging;
 		};
@@ -2920,6 +2940,8 @@
 				PRODUCT_NAME = "etpan-ios";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 			};
 			name = Debug;
 		};
@@ -2960,6 +2982,8 @@
 				PRODUCT_NAME = "etpan-ios";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2970,6 +2994,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2978,6 +3003,8 @@
 				PRODUCT_NAME = etpan;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 			};
 			name = Debug;
 		};
@@ -2994,6 +3021,8 @@
 				PRODUCT_NAME = etpan;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = "non-global";
 				ZERO_LINK = NO;
 			};
 			name = Release;
