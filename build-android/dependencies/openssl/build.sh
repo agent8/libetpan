@@ -40,6 +40,8 @@ export ANDROID_ARCH=arm64-v8a
 
 # openssl does not handle api suffix well
 ln -sfn $TOOLCHAIN/bin/$TARGET_HOST$MIN_SDK_VERSION-clang $TOOLCHAIN/bin/$TARGET_HOST-clang
+ln -sfn $TOOLCHAIN/bin/llvm-ar $TOOLCHAIN/bin/$TARGET_HOST-ar
+ln -sfn $TOOLCHAIN/bin/llvm-ranlib $TOOLCHAIN/bin/$TARGET_HOST-ranlib
 
 ./Configure android-arm64 no-shared \
  -D__ANDROID_API__=$MIN_SDK_VERSION \
@@ -57,6 +59,8 @@ export ANDROID_ARCH=armeabi-v7a
 
 # for 32-bit ARM, the compiler is prefixed with armv7a-linux-androideabi, but the binutils tools are prefixed with arm-linux-androideabi
 ln -sfn $TOOLCHAIN/bin/armv7a-linux-androideabi$MIN_SDK_VERSION-clang $TOOLCHAIN/bin/$TARGET_HOST-clang
+ln -sfn $TOOLCHAIN/bin/llvm-ar $TOOLCHAIN/bin/$TARGET_HOST-ar
+ln -sfn $TOOLCHAIN/bin/llvm-ranlib $TOOLCHAIN/bin/$TARGET_HOST-ranlib
 
 ./Configure android-arm no-shared \
  -D__ANDROID_API__=$MIN_SDK_VERSION \
@@ -81,7 +85,8 @@ export TARGET_HOST=i686-linux-android
 export ANDROID_ARCH=x86
 
 ln -sfn $TOOLCHAIN/bin/$TARGET_HOST$MIN_SDK_VERSION-clang $TOOLCHAIN/bin/$TARGET_HOST-clang
-
+ln -sfn $TOOLCHAIN/bin/llvm-ar $TOOLCHAIN/bin/$TARGET_HOST-ar
+ln -sfn $TOOLCHAIN/bin/llvm-ranlib $TOOLCHAIN/bin/$TARGET_HOST-ranlib
 ./Configure android-x86 no-shared \
  -D__ANDROID_API__=$MIN_SDK_VERSION \
  --prefix=$PWD/build/$ANDROID_ARCH
@@ -104,6 +109,8 @@ export TARGET_HOST=x86_64-linux-android
 export ANDROID_ARCH=x86_64
 
 ln -sfn $TOOLCHAIN/bin/$TARGET_HOST$MIN_SDK_VERSION-clang $TOOLCHAIN/bin/$TARGET_HOST-clang
+ln -sfn $TOOLCHAIN/bin/llvm-ar $TOOLCHAIN/bin/$TARGET_HOST-ar
+ln -sfn $TOOLCHAIN/bin/llvm-ranlib $TOOLCHAIN/bin/$TARGET_HOST-ranlib
 
 ./Configure android-x86_64 no-shared \
  -D__ANDROID_API__=$MIN_SDK_VERSION \
