@@ -68,13 +68,13 @@ $ make
     
 - cd libetpan/build-android
 ```
-$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/21.3.6528147 #Use ndk 21
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/28.2.13676358 #Use ndk 28
 $ ./build.sh
 ```
 
 - cd libetpan/build-android/dependencies/openssl
 ```
-$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/21.3.6528147 #Use ndk 21
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/28.2.13676358 #Use ndk 28
 $ ./build.sh
 ```
 
@@ -86,13 +86,13 @@ $ ./download-cyrus-sasl.sh
 
 - cd libetpan/build-android/dependencies/cyrus-sasl
 ```
-$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/17.2.4988734 #Use ndk 17
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/28.2.13676358 #Use ndk 28
 $ ./build.sh
 ```
 
 - cd libetpan/build-android
 ```
-$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/21.3.6528147 #Use ndk 21
+$ export ANDROID_NDK=/Users/xxx/Library/Android/sdk/ndk/28.2.13676358 #Use ndk 28
 $ ./build.sh
 ```
 
