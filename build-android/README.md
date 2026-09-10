@@ -1,5 +1,5 @@
 ## Build instruction for Android ##
-
+#Prefer to use release-andriod branch
 ```
 $ export ANDROID_NDK=/path/to/android-ndk
 $ cd build-android
